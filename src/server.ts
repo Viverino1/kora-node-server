@@ -7,6 +7,7 @@ import test from "./routers/test.js";
 export const port = process.env.PORT;
 export const aniwatchPort = process.env.ANIWATCH_API_PORT;
 export const baseURL = process.env.BASE_URL;
+export const jikanBaseURL = process.env.JIKAN_API_BASE_URL;
 
 const app = express();
 app.use(express.json());

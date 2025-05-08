@@ -45,11 +45,12 @@ class Puppeteer {
     }
   }
 
-  public static async get(url: string, selectors: string | string[] = []) {
+  public static async get(url: string, selectors: string | string[] = [], referer: string | null = null, scripts: string | string[] = []) {
     const page = await this._newPage();
     await page.goto(url, {
       waitUntil: "networkidle0",
       timeout: 60000,
+      referer: referer ?? undefined,
     });
     const selectorArray = Array.isArray(selectors) ? selectors : [selectors];
     await Promise.all(
@@ -60,11 +61,19 @@ class Puppeteer {
         })
       )
     );
+
+    const scriptArray = Array.isArray(scripts) ? scripts : [scripts];
+    const scriptResults = await Promise.all(
+      scriptArray.map(async (script) => {
+        return await page.evaluate(script);
+      })
+    );
+
     const html = await page.content();
     const dom = new JSDOM(html);
     const content = dom.window.document;
     await page.close();
-    return content;
+    return { content, scriptResults };
   }
 }
 

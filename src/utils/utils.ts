@@ -1,0 +1,87 @@
+import { HiAnime } from "../services/hianime/hianime.js";
+
+export function ensureNotZero(value: number | null): number | null {
+  return value === 0 ? null : value;
+}
+
+export function stringOrStringArrayToString(aired: string | string[]): string | null {
+  const value = Array.isArray(aired) ? aired[0] : aired;
+  return value && value.trim() !== "" ? value : null;
+}
+
+export function extractStartEndDates(aired: string | string[]): [string | null, string | null] {
+  const airedStr = stringOrStringArrayToString(aired);
+  if (!airedStr) return [null, null];
+  return airedStr.split(" to ").map((dateStr: string) => {
+    try {
+      const date = new Date(dateStr.trim());
+      return date instanceof Date && !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : null;
+    } catch {
+      return null;
+    }
+  }) as [string | null, string | null];
+}
+
+export function sanitizeDescription(description: string | null): string | null {
+  if (!description) return null;
+  const normalizedDescription = description.replace(/\n+/g, " ");
+  if (/season of \./i.test(normalizedDescription.trim())) return null;
+  return normalizedDescription;
+}
+
+export function splitStringToStringArray(value: string | null): string[] {
+  if (value === null) {
+    return [];
+  } else {
+    return value.split(/\s*,\s*/).filter(Boolean);
+  }
+}
+
+/**
+ * Extracts the first number from a string, or returns null if input is null or no number is found.
+ * @param value string or null
+ * @returns number or null
+ */
+export function stringOrNullToNumberOrNull(value: string | null): number | null {
+  if (value === null) return null;
+  // Match a number with optional decimal part
+  const match = value.match(/\d+(\.\d+)?/);
+  return match ? parseFloat(match[0]) : null;
+}
+
+export function stringOrStringArrayToStringArray(aired: string | string[]): string[] {
+  const value = Array.isArray(aired) ? aired : [aired];
+  return value.map((s) => s.trim()).filter((s) => s !== "");
+}
+/**
+ * Converts a string to a Status type ("upcoming" | "airing" | "finished" | null)
+ * Matches are case-insensitive and trims whitespace. Returns null if no match.
+ */
+export function stringToStatus(str: string | null | undefined): HiAnime.Status {
+  if (!str) return null;
+  const normalized = str.trim().toLowerCase();
+  if (["upcoming", "not yet aired"].includes(normalized)) return "upcoming";
+  if (["airing", "currently airing"].includes(normalized)) return "airing";
+  if (["finished", "completed", "ended", "finished airing"].includes(normalized)) return "finished";
+  return null;
+}
+
+export default function toMinimalAnimeInfoArray(data: any[]) {
+  return data
+    .map((e) => {
+      if (e.id === null) {
+        return null;
+      }
+
+      const anime: HiAnime.MinimalAnimeInfo = {
+        id: e.id,
+        name: e.name,
+        poster: e.poster,
+        episodeCount: e.episodes?.sub ?? null,
+        type: e.type ? e.type.split(" (")[0].trim() : null,
+      };
+
+      return anime;
+    })
+    .filter((id) => id !== null);
+}
