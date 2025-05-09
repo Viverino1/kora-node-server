@@ -1,5 +1,8 @@
 import axios from "axios";
 import { jikanBaseURL } from "../server.js";
+import { Prisma } from "../core/Prisma.js";
+import { CacheType } from "../prisma/index.js";
+
 
 export class Jikan {
   private static get _url() {
@@ -7,9 +10,8 @@ export class Jikan {
   }
 
   public static async getAnimeById(id: number) {
-    const url = `${this._url}/anime/${id}/full`;
-    const response = await axios.get(url);
-    return response.data.data as Jikan.Anime;
+    const res = await Prisma.cacheJSON(id.toString(), CacheType.JIKAN_ANIME, async () => (await axios.get(`${this._url}/anime/${id}/full`)).data);
+    return res.data as Jikan.Anime;
   }
 }
 

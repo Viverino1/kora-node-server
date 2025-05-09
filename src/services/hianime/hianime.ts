@@ -3,6 +3,8 @@ import axios from "axios";
 
 import { aniwatchPort, baseURL } from "../../server.js";
 import HiAnimeParser from "./hiAnimeParser.js";
+import { Prisma } from "../../core/Prisma.js";
+import { CacheType } from "../../prisma/index.js";
 
 export class HiAnime {
   private static get _url() {
@@ -10,26 +12,26 @@ export class HiAnime {
   }
 
   public static async getIdFromTitle(title: string) {
-    const res = await axios.get(`${this._url}/search?q=${title}`);
-    const data = res.data.data as HiAnimeTypes.ScrapedAnimeSearchResult;
+    const res = await Prisma.cacheJSON(title, CacheType.ANIMEPAHE_ID, async () => (await axios.get(`${this._url}/search?q=${title}`)).data);
+    const data = res.data as HiAnimeTypes.ScrapedAnimeSearchResult;
     return data.animes[0].id;
   }
 
   public static async getAnime(id: string) {
-    const res = await axios.get(`${this._url}/anime/${id}`);
-    const parsedRes = HiAnimeParser.anime(res.data.data as any);
+    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_ANIME, async () => (await axios.get(`${this._url}/anime/${id}`)).data);
+    const parsedRes = HiAnimeParser.anime(res.data as any);
     return parsedRes;
   }
 
   public static async getEpisodes(id: string) {
-    const res = await axios.get(`${this._url}/anime/${id}/episodes`);
-    const parsedRes = HiAnimeParser.episodes(res.data.data as any);
+    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_EPISODES, async () => (await axios.get(`${this._url}/anime/${id}/episodes`)).data);
+    const parsedRes = HiAnimeParser.episodes(res.data as any);
     return parsedRes;
   }
 
   public static async getSource(id: string) {
-    const res = await axios.get(`${this._url}/episode/sources?animeEpisodeId=${id}`);
-    const parsedRes = HiAnimeParser.source(res.data.data as any);
+    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_SOURCE, async () => (await axios.get(`${this._url}/episode/sources?animeEpisodeId=${id}`)).data);
+    const parsedRes = HiAnimeParser.source(res.data as any);
     return parsedRes;
   }
 }
