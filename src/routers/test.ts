@@ -6,7 +6,7 @@ import { HiAnime } from "../services/hianime/hianime.js";
 const router = Router();
 
 router.get("/test", async (_req: Request, res: Response) => {
-  const data = await HiAnime.getAnime("one-piece-100");
+  const data = await AnimePahe.getAllAnime();
   // const data = await Jikan.getAnimeById(1);
   res.json(data);
 });

@@ -9,8 +9,8 @@ export class Jikan {
     return jikanBaseURL;
   }
 
-  public static async getAnimeById(id: number) {
-    const res = await Prisma.cacheJSON(id.toString(), CacheType.JIKAN_ANIME, async () => (await axios.get(`${this._url}/anime/${id}/full`)).data);
+  public static async getAnimeById(id: number, ignoreCache = false) {
+    const res = await Prisma.cacheJSON(id.toString(), ignoreCache, CacheType.JIKAN_ANIME, async () => (await axios.get(`${this._url}/anime/${id}/full`)).data);
     return res.data as Jikan.Anime;
   }
 }

@@ -4,6 +4,7 @@ import hianime from "../external/hianime/dist/src/server.js";
 import Puppeteer from "./core/Puppeteer.js";
 import health from "./routers/health.js";
 import test from "./routers/test.js";
+import { Indexer } from "./core/Indexer.js";
 export const port = process.env.PORT;
 export const aniwatchPort = process.env.ANIWATCH_API_PORT;
 export const baseURL = process.env.BASE_URL;
@@ -17,6 +18,7 @@ await Puppeteer.initialize();
 console.log("Puppeteer is initialized");
 // await AnimePahe.initialize();
 // console.log("AnimePahe is initialized");
+await Indexer.initialize();
 app.listen(port);
 serve({
   fetch: hianime.fetch,

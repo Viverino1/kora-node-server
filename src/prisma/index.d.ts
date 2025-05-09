@@ -18,17 +18,24 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  * 
  */
 export type CacheJSON = $Result.DefaultSelection<Prisma.$CacheJSONPayload>
+/**
+ * Model AnimePaheAnimesID
+ * 
+ */
+export type AnimePaheAnimesID = $Result.DefaultSelection<Prisma.$AnimePaheAnimesIDPayload>
 
 /**
  * Enums
  */
 export namespace $Enums {
   export const CacheType: {
-  ANIMEPAHE_ID: 'ANIMEPAHE_ID',
-  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME',
-  ANIMEPAHE_EPISODES: 'ANIMEPAHE_EPISODES',
-  ANIMEPAHE_SOURCE: 'ANIMEPAHE_SOURCE',
-  JIKAN_ANIME: 'JIKAN_ANIME'
+  HIANIME_ID: 'HIANIME_ID',
+  HIANIME_ANIME: 'HIANIME_ANIME',
+  HIANIME_EPISODES: 'HIANIME_EPISODES',
+  HIANIME_SOURCE: 'HIANIME_SOURCE',
+  JIKAN_ANIME: 'JIKAN_ANIME',
+  ANIMEPAHE_HOME: 'ANIMEPAHE_HOME',
+  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME'
 };
 
 export type CacheType = (typeof CacheType)[keyof typeof CacheType]
@@ -173,6 +180,16 @@ export class PrismaClient<
     * ```
     */
   get cacheJSON(): Prisma.CacheJSONDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.animePaheAnimesID`: Exposes CRUD operations for the **AnimePaheAnimesID** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AnimePaheAnimesIDS
+    * const animePaheAnimesIDS = await prisma.animePaheAnimesID.findMany()
+    * ```
+    */
+  get animePaheAnimesID(): Prisma.AnimePaheAnimesIDDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -613,7 +630,8 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    CacheJSON: 'CacheJSON'
+    CacheJSON: 'CacheJSON',
+    AnimePaheAnimesID: 'AnimePaheAnimesID'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -632,7 +650,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "cacheJSON"
+      modelProps: "cacheJSON" | "animePaheAnimesID"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -707,6 +725,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CacheJSONCountArgs<ExtArgs>
             result: $Utils.Optional<CacheJSONCountAggregateOutputType> | number
+          }
+        }
+      }
+      AnimePaheAnimesID: {
+        payload: Prisma.$AnimePaheAnimesIDPayload<ExtArgs>
+        fields: Prisma.AnimePaheAnimesIDFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnimePaheAnimesIDFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnimePaheAnimesIDFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          findFirst: {
+            args: Prisma.AnimePaheAnimesIDFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnimePaheAnimesIDFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          findMany: {
+            args: Prisma.AnimePaheAnimesIDFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>[]
+          }
+          create: {
+            args: Prisma.AnimePaheAnimesIDCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          createMany: {
+            args: Prisma.AnimePaheAnimesIDCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnimePaheAnimesIDCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>[]
+          }
+          delete: {
+            args: Prisma.AnimePaheAnimesIDDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          update: {
+            args: Prisma.AnimePaheAnimesIDUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnimePaheAnimesIDDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnimePaheAnimesIDUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AnimePaheAnimesIDUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>[]
+          }
+          upsert: {
+            args: Prisma.AnimePaheAnimesIDUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnimePaheAnimesIDPayload>
+          }
+          aggregate: {
+            args: Prisma.AnimePaheAnimesIDAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnimePaheAnimesID>
+          }
+          groupBy: {
+            args: Prisma.AnimePaheAnimesIDGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnimePaheAnimesIDGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnimePaheAnimesIDCountArgs<ExtArgs>
+            result: $Utils.Optional<AnimePaheAnimesIDCountAggregateOutputType> | number
           }
         }
       }
@@ -795,6 +887,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     cacheJSON?: CacheJSONOmit
+    animePaheAnimesID?: AnimePaheAnimesIDOmit
   }
 
   /* Types for Logging */
@@ -1866,6 +1959,986 @@ export namespace Prisma {
 
 
   /**
+   * Model AnimePaheAnimesID
+   */
+
+  export type AggregateAnimePaheAnimesID = {
+    _count: AnimePaheAnimesIDCountAggregateOutputType | null
+    _min: AnimePaheAnimesIDMinAggregateOutputType | null
+    _max: AnimePaheAnimesIDMaxAggregateOutputType | null
+  }
+
+  export type AnimePaheAnimesIDMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    session: string | null
+    cachedAt: Date | null
+  }
+
+  export type AnimePaheAnimesIDMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    session: string | null
+    cachedAt: Date | null
+  }
+
+  export type AnimePaheAnimesIDCountAggregateOutputType = {
+    id: number
+    title: number
+    session: number
+    cachedAt: number
+    _all: number
+  }
+
+
+  export type AnimePaheAnimesIDMinAggregateInputType = {
+    id?: true
+    title?: true
+    session?: true
+    cachedAt?: true
+  }
+
+  export type AnimePaheAnimesIDMaxAggregateInputType = {
+    id?: true
+    title?: true
+    session?: true
+    cachedAt?: true
+  }
+
+  export type AnimePaheAnimesIDCountAggregateInputType = {
+    id?: true
+    title?: true
+    session?: true
+    cachedAt?: true
+    _all?: true
+  }
+
+  export type AnimePaheAnimesIDAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnimePaheAnimesID to aggregate.
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnimePaheAnimesIDS to fetch.
+     */
+    orderBy?: AnimePaheAnimesIDOrderByWithRelationInput | AnimePaheAnimesIDOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnimePaheAnimesIDWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnimePaheAnimesIDS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnimePaheAnimesIDS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AnimePaheAnimesIDS
+    **/
+    _count?: true | AnimePaheAnimesIDCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnimePaheAnimesIDMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnimePaheAnimesIDMaxAggregateInputType
+  }
+
+  export type GetAnimePaheAnimesIDAggregateType<T extends AnimePaheAnimesIDAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnimePaheAnimesID]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnimePaheAnimesID[P]>
+      : GetScalarType<T[P], AggregateAnimePaheAnimesID[P]>
+  }
+
+
+
+
+  export type AnimePaheAnimesIDGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnimePaheAnimesIDWhereInput
+    orderBy?: AnimePaheAnimesIDOrderByWithAggregationInput | AnimePaheAnimesIDOrderByWithAggregationInput[]
+    by: AnimePaheAnimesIDScalarFieldEnum[] | AnimePaheAnimesIDScalarFieldEnum
+    having?: AnimePaheAnimesIDScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnimePaheAnimesIDCountAggregateInputType | true
+    _min?: AnimePaheAnimesIDMinAggregateInputType
+    _max?: AnimePaheAnimesIDMaxAggregateInputType
+  }
+
+  export type AnimePaheAnimesIDGroupByOutputType = {
+    id: string
+    title: string
+    session: string
+    cachedAt: Date
+    _count: AnimePaheAnimesIDCountAggregateOutputType | null
+    _min: AnimePaheAnimesIDMinAggregateOutputType | null
+    _max: AnimePaheAnimesIDMaxAggregateOutputType | null
+  }
+
+  type GetAnimePaheAnimesIDGroupByPayload<T extends AnimePaheAnimesIDGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnimePaheAnimesIDGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnimePaheAnimesIDGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnimePaheAnimesIDGroupByOutputType[P]>
+            : GetScalarType<T[P], AnimePaheAnimesIDGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnimePaheAnimesIDSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    session?: boolean
+    cachedAt?: boolean
+  }, ExtArgs["result"]["animePaheAnimesID"]>
+
+  export type AnimePaheAnimesIDSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    session?: boolean
+    cachedAt?: boolean
+  }, ExtArgs["result"]["animePaheAnimesID"]>
+
+  export type AnimePaheAnimesIDSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    session?: boolean
+    cachedAt?: boolean
+  }, ExtArgs["result"]["animePaheAnimesID"]>
+
+  export type AnimePaheAnimesIDSelectScalar = {
+    id?: boolean
+    title?: boolean
+    session?: boolean
+    cachedAt?: boolean
+  }
+
+  export type AnimePaheAnimesIDOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "session" | "cachedAt", ExtArgs["result"]["animePaheAnimesID"]>
+
+  export type $AnimePaheAnimesIDPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AnimePaheAnimesID"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      session: string
+      cachedAt: Date
+    }, ExtArgs["result"]["animePaheAnimesID"]>
+    composites: {}
+  }
+
+  type AnimePaheAnimesIDGetPayload<S extends boolean | null | undefined | AnimePaheAnimesIDDefaultArgs> = $Result.GetResult<Prisma.$AnimePaheAnimesIDPayload, S>
+
+  type AnimePaheAnimesIDCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnimePaheAnimesIDFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnimePaheAnimesIDCountAggregateInputType | true
+    }
+
+  export interface AnimePaheAnimesIDDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AnimePaheAnimesID'], meta: { name: 'AnimePaheAnimesID' } }
+    /**
+     * Find zero or one AnimePaheAnimesID that matches the filter.
+     * @param {AnimePaheAnimesIDFindUniqueArgs} args - Arguments to find a AnimePaheAnimesID
+     * @example
+     * // Get one AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnimePaheAnimesIDFindUniqueArgs>(args: SelectSubset<T, AnimePaheAnimesIDFindUniqueArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AnimePaheAnimesID that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnimePaheAnimesIDFindUniqueOrThrowArgs} args - Arguments to find a AnimePaheAnimesID
+     * @example
+     * // Get one AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnimePaheAnimesIDFindUniqueOrThrowArgs>(args: SelectSubset<T, AnimePaheAnimesIDFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnimePaheAnimesID that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDFindFirstArgs} args - Arguments to find a AnimePaheAnimesID
+     * @example
+     * // Get one AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnimePaheAnimesIDFindFirstArgs>(args?: SelectSubset<T, AnimePaheAnimesIDFindFirstArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnimePaheAnimesID that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDFindFirstOrThrowArgs} args - Arguments to find a AnimePaheAnimesID
+     * @example
+     * // Get one AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnimePaheAnimesIDFindFirstOrThrowArgs>(args?: SelectSubset<T, AnimePaheAnimesIDFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AnimePaheAnimesIDS that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AnimePaheAnimesIDS
+     * const animePaheAnimesIDS = await prisma.animePaheAnimesID.findMany()
+     * 
+     * // Get first 10 AnimePaheAnimesIDS
+     * const animePaheAnimesIDS = await prisma.animePaheAnimesID.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const animePaheAnimesIDWithIdOnly = await prisma.animePaheAnimesID.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnimePaheAnimesIDFindManyArgs>(args?: SelectSubset<T, AnimePaheAnimesIDFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AnimePaheAnimesID.
+     * @param {AnimePaheAnimesIDCreateArgs} args - Arguments to create a AnimePaheAnimesID.
+     * @example
+     * // Create one AnimePaheAnimesID
+     * const AnimePaheAnimesID = await prisma.animePaheAnimesID.create({
+     *   data: {
+     *     // ... data to create a AnimePaheAnimesID
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnimePaheAnimesIDCreateArgs>(args: SelectSubset<T, AnimePaheAnimesIDCreateArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AnimePaheAnimesIDS.
+     * @param {AnimePaheAnimesIDCreateManyArgs} args - Arguments to create many AnimePaheAnimesIDS.
+     * @example
+     * // Create many AnimePaheAnimesIDS
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnimePaheAnimesIDCreateManyArgs>(args?: SelectSubset<T, AnimePaheAnimesIDCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AnimePaheAnimesIDS and returns the data saved in the database.
+     * @param {AnimePaheAnimesIDCreateManyAndReturnArgs} args - Arguments to create many AnimePaheAnimesIDS.
+     * @example
+     * // Create many AnimePaheAnimesIDS
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AnimePaheAnimesIDS and only return the `id`
+     * const animePaheAnimesIDWithIdOnly = await prisma.animePaheAnimesID.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnimePaheAnimesIDCreateManyAndReturnArgs>(args?: SelectSubset<T, AnimePaheAnimesIDCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AnimePaheAnimesID.
+     * @param {AnimePaheAnimesIDDeleteArgs} args - Arguments to delete one AnimePaheAnimesID.
+     * @example
+     * // Delete one AnimePaheAnimesID
+     * const AnimePaheAnimesID = await prisma.animePaheAnimesID.delete({
+     *   where: {
+     *     // ... filter to delete one AnimePaheAnimesID
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnimePaheAnimesIDDeleteArgs>(args: SelectSubset<T, AnimePaheAnimesIDDeleteArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AnimePaheAnimesID.
+     * @param {AnimePaheAnimesIDUpdateArgs} args - Arguments to update one AnimePaheAnimesID.
+     * @example
+     * // Update one AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnimePaheAnimesIDUpdateArgs>(args: SelectSubset<T, AnimePaheAnimesIDUpdateArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AnimePaheAnimesIDS.
+     * @param {AnimePaheAnimesIDDeleteManyArgs} args - Arguments to filter AnimePaheAnimesIDS to delete.
+     * @example
+     * // Delete a few AnimePaheAnimesIDS
+     * const { count } = await prisma.animePaheAnimesID.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnimePaheAnimesIDDeleteManyArgs>(args?: SelectSubset<T, AnimePaheAnimesIDDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnimePaheAnimesIDS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AnimePaheAnimesIDS
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnimePaheAnimesIDUpdateManyArgs>(args: SelectSubset<T, AnimePaheAnimesIDUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnimePaheAnimesIDS and returns the data updated in the database.
+     * @param {AnimePaheAnimesIDUpdateManyAndReturnArgs} args - Arguments to update many AnimePaheAnimesIDS.
+     * @example
+     * // Update many AnimePaheAnimesIDS
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AnimePaheAnimesIDS and only return the `id`
+     * const animePaheAnimesIDWithIdOnly = await prisma.animePaheAnimesID.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AnimePaheAnimesIDUpdateManyAndReturnArgs>(args: SelectSubset<T, AnimePaheAnimesIDUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AnimePaheAnimesID.
+     * @param {AnimePaheAnimesIDUpsertArgs} args - Arguments to update or create a AnimePaheAnimesID.
+     * @example
+     * // Update or create a AnimePaheAnimesID
+     * const animePaheAnimesID = await prisma.animePaheAnimesID.upsert({
+     *   create: {
+     *     // ... data to create a AnimePaheAnimesID
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AnimePaheAnimesID we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnimePaheAnimesIDUpsertArgs>(args: SelectSubset<T, AnimePaheAnimesIDUpsertArgs<ExtArgs>>): Prisma__AnimePaheAnimesIDClient<$Result.GetResult<Prisma.$AnimePaheAnimesIDPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AnimePaheAnimesIDS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDCountArgs} args - Arguments to filter AnimePaheAnimesIDS to count.
+     * @example
+     * // Count the number of AnimePaheAnimesIDS
+     * const count = await prisma.animePaheAnimesID.count({
+     *   where: {
+     *     // ... the filter for the AnimePaheAnimesIDS we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnimePaheAnimesIDCountArgs>(
+      args?: Subset<T, AnimePaheAnimesIDCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnimePaheAnimesIDCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AnimePaheAnimesID.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnimePaheAnimesIDAggregateArgs>(args: Subset<T, AnimePaheAnimesIDAggregateArgs>): Prisma.PrismaPromise<GetAnimePaheAnimesIDAggregateType<T>>
+
+    /**
+     * Group by AnimePaheAnimesID.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnimePaheAnimesIDGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnimePaheAnimesIDGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnimePaheAnimesIDGroupByArgs['orderBy'] }
+        : { orderBy?: AnimePaheAnimesIDGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnimePaheAnimesIDGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnimePaheAnimesIDGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AnimePaheAnimesID model
+   */
+  readonly fields: AnimePaheAnimesIDFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AnimePaheAnimesID.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnimePaheAnimesIDClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AnimePaheAnimesID model
+   */
+  interface AnimePaheAnimesIDFieldRefs {
+    readonly id: FieldRef<"AnimePaheAnimesID", 'String'>
+    readonly title: FieldRef<"AnimePaheAnimesID", 'String'>
+    readonly session: FieldRef<"AnimePaheAnimesID", 'String'>
+    readonly cachedAt: FieldRef<"AnimePaheAnimesID", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AnimePaheAnimesID findUnique
+   */
+  export type AnimePaheAnimesIDFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter, which AnimePaheAnimesID to fetch.
+     */
+    where: AnimePaheAnimesIDWhereUniqueInput
+  }
+
+  /**
+   * AnimePaheAnimesID findUniqueOrThrow
+   */
+  export type AnimePaheAnimesIDFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter, which AnimePaheAnimesID to fetch.
+     */
+    where: AnimePaheAnimesIDWhereUniqueInput
+  }
+
+  /**
+   * AnimePaheAnimesID findFirst
+   */
+  export type AnimePaheAnimesIDFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter, which AnimePaheAnimesID to fetch.
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnimePaheAnimesIDS to fetch.
+     */
+    orderBy?: AnimePaheAnimesIDOrderByWithRelationInput | AnimePaheAnimesIDOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnimePaheAnimesIDS.
+     */
+    cursor?: AnimePaheAnimesIDWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnimePaheAnimesIDS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnimePaheAnimesIDS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnimePaheAnimesIDS.
+     */
+    distinct?: AnimePaheAnimesIDScalarFieldEnum | AnimePaheAnimesIDScalarFieldEnum[]
+  }
+
+  /**
+   * AnimePaheAnimesID findFirstOrThrow
+   */
+  export type AnimePaheAnimesIDFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter, which AnimePaheAnimesID to fetch.
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnimePaheAnimesIDS to fetch.
+     */
+    orderBy?: AnimePaheAnimesIDOrderByWithRelationInput | AnimePaheAnimesIDOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnimePaheAnimesIDS.
+     */
+    cursor?: AnimePaheAnimesIDWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnimePaheAnimesIDS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnimePaheAnimesIDS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnimePaheAnimesIDS.
+     */
+    distinct?: AnimePaheAnimesIDScalarFieldEnum | AnimePaheAnimesIDScalarFieldEnum[]
+  }
+
+  /**
+   * AnimePaheAnimesID findMany
+   */
+  export type AnimePaheAnimesIDFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter, which AnimePaheAnimesIDS to fetch.
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnimePaheAnimesIDS to fetch.
+     */
+    orderBy?: AnimePaheAnimesIDOrderByWithRelationInput | AnimePaheAnimesIDOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AnimePaheAnimesIDS.
+     */
+    cursor?: AnimePaheAnimesIDWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnimePaheAnimesIDS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnimePaheAnimesIDS.
+     */
+    skip?: number
+    distinct?: AnimePaheAnimesIDScalarFieldEnum | AnimePaheAnimesIDScalarFieldEnum[]
+  }
+
+  /**
+   * AnimePaheAnimesID create
+   */
+  export type AnimePaheAnimesIDCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AnimePaheAnimesID.
+     */
+    data: XOR<AnimePaheAnimesIDCreateInput, AnimePaheAnimesIDUncheckedCreateInput>
+  }
+
+  /**
+   * AnimePaheAnimesID createMany
+   */
+  export type AnimePaheAnimesIDCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AnimePaheAnimesIDS.
+     */
+    data: AnimePaheAnimesIDCreateManyInput | AnimePaheAnimesIDCreateManyInput[]
+  }
+
+  /**
+   * AnimePaheAnimesID createManyAndReturn
+   */
+  export type AnimePaheAnimesIDCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * The data used to create many AnimePaheAnimesIDS.
+     */
+    data: AnimePaheAnimesIDCreateManyInput | AnimePaheAnimesIDCreateManyInput[]
+  }
+
+  /**
+   * AnimePaheAnimesID update
+   */
+  export type AnimePaheAnimesIDUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AnimePaheAnimesID.
+     */
+    data: XOR<AnimePaheAnimesIDUpdateInput, AnimePaheAnimesIDUncheckedUpdateInput>
+    /**
+     * Choose, which AnimePaheAnimesID to update.
+     */
+    where: AnimePaheAnimesIDWhereUniqueInput
+  }
+
+  /**
+   * AnimePaheAnimesID updateMany
+   */
+  export type AnimePaheAnimesIDUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AnimePaheAnimesIDS.
+     */
+    data: XOR<AnimePaheAnimesIDUpdateManyMutationInput, AnimePaheAnimesIDUncheckedUpdateManyInput>
+    /**
+     * Filter which AnimePaheAnimesIDS to update
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * Limit how many AnimePaheAnimesIDS to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnimePaheAnimesID updateManyAndReturn
+   */
+  export type AnimePaheAnimesIDUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * The data used to update AnimePaheAnimesIDS.
+     */
+    data: XOR<AnimePaheAnimesIDUpdateManyMutationInput, AnimePaheAnimesIDUncheckedUpdateManyInput>
+    /**
+     * Filter which AnimePaheAnimesIDS to update
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * Limit how many AnimePaheAnimesIDS to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnimePaheAnimesID upsert
+   */
+  export type AnimePaheAnimesIDUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AnimePaheAnimesID to update in case it exists.
+     */
+    where: AnimePaheAnimesIDWhereUniqueInput
+    /**
+     * In case the AnimePaheAnimesID found by the `where` argument doesn't exist, create a new AnimePaheAnimesID with this data.
+     */
+    create: XOR<AnimePaheAnimesIDCreateInput, AnimePaheAnimesIDUncheckedCreateInput>
+    /**
+     * In case the AnimePaheAnimesID was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnimePaheAnimesIDUpdateInput, AnimePaheAnimesIDUncheckedUpdateInput>
+  }
+
+  /**
+   * AnimePaheAnimesID delete
+   */
+  export type AnimePaheAnimesIDDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+    /**
+     * Filter which AnimePaheAnimesID to delete.
+     */
+    where: AnimePaheAnimesIDWhereUniqueInput
+  }
+
+  /**
+   * AnimePaheAnimesID deleteMany
+   */
+  export type AnimePaheAnimesIDDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnimePaheAnimesIDS to delete
+     */
+    where?: AnimePaheAnimesIDWhereInput
+    /**
+     * Limit how many AnimePaheAnimesIDS to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnimePaheAnimesID without action
+   */
+  export type AnimePaheAnimesIDDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnimePaheAnimesID
+     */
+    select?: AnimePaheAnimesIDSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnimePaheAnimesID
+     */
+    omit?: AnimePaheAnimesIDOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -1884,6 +2957,16 @@ export namespace Prisma {
   };
 
   export type CacheJSONScalarFieldEnum = (typeof CacheJSONScalarFieldEnum)[keyof typeof CacheJSONScalarFieldEnum]
+
+
+  export const AnimePaheAnimesIDScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    session: 'session',
+    cachedAt: 'cachedAt'
+  };
+
+  export type AnimePaheAnimesIDScalarFieldEnum = (typeof AnimePaheAnimesIDScalarFieldEnum)[keyof typeof AnimePaheAnimesIDScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -2015,6 +3098,53 @@ export namespace Prisma {
     json?: JsonWithAggregatesFilter<"CacheJSON">
   }
 
+  export type AnimePaheAnimesIDWhereInput = {
+    AND?: AnimePaheAnimesIDWhereInput | AnimePaheAnimesIDWhereInput[]
+    OR?: AnimePaheAnimesIDWhereInput[]
+    NOT?: AnimePaheAnimesIDWhereInput | AnimePaheAnimesIDWhereInput[]
+    id?: StringFilter<"AnimePaheAnimesID"> | string
+    title?: StringFilter<"AnimePaheAnimesID"> | string
+    session?: StringFilter<"AnimePaheAnimesID"> | string
+    cachedAt?: DateTimeFilter<"AnimePaheAnimesID"> | Date | string
+  }
+
+  export type AnimePaheAnimesIDOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    session?: SortOrder
+    cachedAt?: SortOrder
+  }
+
+  export type AnimePaheAnimesIDWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AnimePaheAnimesIDWhereInput | AnimePaheAnimesIDWhereInput[]
+    OR?: AnimePaheAnimesIDWhereInput[]
+    NOT?: AnimePaheAnimesIDWhereInput | AnimePaheAnimesIDWhereInput[]
+    title?: StringFilter<"AnimePaheAnimesID"> | string
+    session?: StringFilter<"AnimePaheAnimesID"> | string
+    cachedAt?: DateTimeFilter<"AnimePaheAnimesID"> | Date | string
+  }, "id">
+
+  export type AnimePaheAnimesIDOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    session?: SortOrder
+    cachedAt?: SortOrder
+    _count?: AnimePaheAnimesIDCountOrderByAggregateInput
+    _max?: AnimePaheAnimesIDMaxOrderByAggregateInput
+    _min?: AnimePaheAnimesIDMinOrderByAggregateInput
+  }
+
+  export type AnimePaheAnimesIDScalarWhereWithAggregatesInput = {
+    AND?: AnimePaheAnimesIDScalarWhereWithAggregatesInput | AnimePaheAnimesIDScalarWhereWithAggregatesInput[]
+    OR?: AnimePaheAnimesIDScalarWhereWithAggregatesInput[]
+    NOT?: AnimePaheAnimesIDScalarWhereWithAggregatesInput | AnimePaheAnimesIDScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AnimePaheAnimesID"> | string
+    title?: StringWithAggregatesFilter<"AnimePaheAnimesID"> | string
+    session?: StringWithAggregatesFilter<"AnimePaheAnimesID"> | string
+    cachedAt?: DateTimeWithAggregatesFilter<"AnimePaheAnimesID"> | Date | string
+  }
+
   export type CacheJSONCreateInput = {
     id: string
     type: $Enums.CacheType
@@ -2062,6 +3192,55 @@ export namespace Prisma {
     type?: EnumCacheTypeFieldUpdateOperationsInput | $Enums.CacheType
     cachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     json?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type AnimePaheAnimesIDCreateInput = {
+    id: string
+    title: string
+    session: string
+    cachedAt?: Date | string
+  }
+
+  export type AnimePaheAnimesIDUncheckedCreateInput = {
+    id: string
+    title: string
+    session: string
+    cachedAt?: Date | string
+  }
+
+  export type AnimePaheAnimesIDUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    session?: StringFieldUpdateOperationsInput | string
+    cachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnimePaheAnimesIDUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    session?: StringFieldUpdateOperationsInput | string
+    cachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnimePaheAnimesIDCreateManyInput = {
+    id: string
+    title: string
+    session: string
+    cachedAt?: Date | string
+  }
+
+  export type AnimePaheAnimesIDUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    session?: StringFieldUpdateOperationsInput | string
+    cachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnimePaheAnimesIDUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    session?: StringFieldUpdateOperationsInput | string
+    cachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -2193,6 +3372,27 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type AnimePaheAnimesIDCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    session?: SortOrder
+    cachedAt?: SortOrder
+  }
+
+  export type AnimePaheAnimesIDMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    session?: SortOrder
+    cachedAt?: SortOrder
+  }
+
+  export type AnimePaheAnimesIDMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    session?: SortOrder
+    cachedAt?: SortOrder
   }
 
   export type StringFieldUpdateOperationsInput = {
