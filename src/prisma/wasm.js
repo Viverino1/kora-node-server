@@ -124,6 +124,13 @@ exports.Prisma.CacheJSONScalarFieldEnum = {
   json: 'json'
 };
 
+exports.Prisma.AnimePaheAnimesIDScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  session: 'session',
+  cachedAt: 'cachedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -144,15 +151,18 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 exports.CacheType = exports.$Enums.CacheType = {
-  ANIMEPAHE_ID: 'ANIMEPAHE_ID',
-  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME',
-  ANIMEPAHE_EPISODES: 'ANIMEPAHE_EPISODES',
-  ANIMEPAHE_SOURCE: 'ANIMEPAHE_SOURCE',
-  JIKAN_ANIME: 'JIKAN_ANIME'
+  HIANIME_ID: 'HIANIME_ID',
+  HIANIME_ANIME: 'HIANIME_ANIME',
+  HIANIME_EPISODES: 'HIANIME_EPISODES',
+  HIANIME_SOURCE: 'HIANIME_SOURCE',
+  JIKAN_ANIME: 'JIKAN_ANIME',
+  ANIMEPAHE_HOME: 'ANIMEPAHE_HOME',
+  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME'
 };
 
 exports.Prisma.ModelName = {
-  CacheJSON: 'CacheJSON'
+  CacheJSON: 'CacheJSON',
+  AnimePaheAnimesID: 'AnimePaheAnimesID'
 };
 
 /**

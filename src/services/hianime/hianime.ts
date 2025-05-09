@@ -11,26 +11,26 @@ export class HiAnime {
     return `${baseURL}:${aniwatchPort}/api/v2/hianime`;
   }
 
-  public static async getIdFromTitle(title: string) {
-    const res = await Prisma.cacheJSON(title, CacheType.ANIMEPAHE_ID, async () => (await axios.get(`${this._url}/search?q=${title}`)).data);
+  public static async getIdFromTitle(title: string, ignoreCache = false) {
+    const res = await Prisma.cacheJSON(title, ignoreCache, CacheType.HIANIME_ID, async () => (await axios.get(`${this._url}/search?q=${title}`)).data);
     const data = res.data as HiAnimeTypes.ScrapedAnimeSearchResult;
     return data.animes[0].id;
   }
 
-  public static async getAnime(id: string) {
-    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_ANIME, async () => (await axios.get(`${this._url}/anime/${id}`)).data);
+  public static async getAnime(id: string, ignoreCache = false) {
+    const res = await Prisma.cacheJSON(id, ignoreCache, CacheType.HIANIME_ANIME, async () => (await axios.get(`${this._url}/anime/${id}`)).data);
     const parsedRes = HiAnimeParser.anime(res.data as any);
     return parsedRes;
   }
 
-  public static async getEpisodes(id: string) {
-    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_EPISODES, async () => (await axios.get(`${this._url}/anime/${id}/episodes`)).data);
+  public static async getEpisodes(id: string, ignoreCache = false) {
+    const res = await Prisma.cacheJSON(id, ignoreCache, CacheType.HIANIME_EPISODES, async () => (await axios.get(`${this._url}/anime/${id}/episodes`)).data);
     const parsedRes = HiAnimeParser.episodes(res.data as any);
     return parsedRes;
   }
 
-  public static async getSource(id: string) {
-    const res = await Prisma.cacheJSON(id, CacheType.ANIMEPAHE_SOURCE, async () => (await axios.get(`${this._url}/episode/sources?animeEpisodeId=${id}`)).data);
+  public static async getSource(id: string, ignoreCache = false) {
+    const res = await Prisma.cacheJSON(id, ignoreCache, CacheType.HIANIME_SOURCE, async () => (await axios.get(`${this._url}/episode/sources?animeEpisodeId=${id}`)).data);
     const parsedRes = HiAnimeParser.source(res.data as any);
     return parsedRes;
   }

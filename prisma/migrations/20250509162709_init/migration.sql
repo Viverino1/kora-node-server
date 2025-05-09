@@ -1,6 +1,0 @@
--- CreateTable
-CREATE TABLE "JikanAnimeById" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "data" JSONB NOT NULL,
-    "cachedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

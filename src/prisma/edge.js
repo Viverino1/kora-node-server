@@ -96,6 +96,13 @@ exports.Prisma.CacheJSONScalarFieldEnum = {
   json: 'json'
 };
 
+exports.Prisma.AnimePaheAnimesIDScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  session: 'session',
+  cachedAt: 'cachedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -116,15 +123,18 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 exports.CacheType = exports.$Enums.CacheType = {
-  ANIMEPAHE_ID: 'ANIMEPAHE_ID',
-  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME',
-  ANIMEPAHE_EPISODES: 'ANIMEPAHE_EPISODES',
-  ANIMEPAHE_SOURCE: 'ANIMEPAHE_SOURCE',
-  JIKAN_ANIME: 'JIKAN_ANIME'
+  HIANIME_ID: 'HIANIME_ID',
+  HIANIME_ANIME: 'HIANIME_ANIME',
+  HIANIME_EPISODES: 'HIANIME_EPISODES',
+  HIANIME_SOURCE: 'HIANIME_SOURCE',
+  JIKAN_ANIME: 'JIKAN_ANIME',
+  ANIMEPAHE_HOME: 'ANIMEPAHE_HOME',
+  ANIMEPAHE_ANIME: 'ANIMEPAHE_ANIME'
 };
 
 exports.Prisma.ModelName = {
-  CacheJSON: 'CacheJSON'
+  CacheJSON: 'CacheJSON',
+  AnimePaheAnimesID: 'AnimePaheAnimesID'
 };
 /**
  * Create the Client
@@ -173,13 +183,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum CacheType {\n  ANIMEPAHE_ID\n  ANIMEPAHE_ANIME\n  ANIMEPAHE_EPISODES\n  ANIMEPAHE_SOURCE\n  JIKAN_ANIME\n}\n\nmodel CacheJSON {\n  id       String    @id\n  type     CacheType\n  cachedAt DateTime  @default(now())\n  json     Json\n}\n",
-  "inlineSchemaHash": "34a2fa6eca9ea01b93af5a3ec8ed5a2a7b524a68968147210eba4a26425dbf22",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum CacheType {\n  HIANIME_ID\n  HIANIME_ANIME\n  HIANIME_EPISODES\n  HIANIME_SOURCE\n  JIKAN_ANIME\n  ANIMEPAHE_HOME\n  ANIMEPAHE_ANIME\n}\n\nmodel CacheJSON {\n  id       String    @id\n  type     CacheType\n  cachedAt DateTime  @default(now())\n  json     Json\n}\n\nmodel AnimePaheAnimesID {\n  id       String   @id\n  title    String\n  session  String\n  cachedAt DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "a62e53ab17fd4cb4f9cbb34acb9f4e108d8e4406d83313bf64cce7c52d2dfd0b",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"CacheJSON\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"type\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"CacheType\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"cachedAt\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"json\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Json\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{\"CacheType\":{\"values\":[{\"name\":\"ANIMEPAHE_ID\",\"dbName\":null},{\"name\":\"ANIMEPAHE_ANIME\",\"dbName\":null},{\"name\":\"ANIMEPAHE_EPISODES\",\"dbName\":null},{\"name\":\"ANIMEPAHE_SOURCE\",\"dbName\":null},{\"name\":\"JIKAN_ANIME\",\"dbName\":null}],\"dbName\":null}},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"CacheJSON\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"type\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"CacheType\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"cachedAt\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"json\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Json\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"AnimePaheAnimesID\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"title\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"session\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"cachedAt\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{\"CacheType\":{\"values\":[{\"name\":\"HIANIME_ID\",\"dbName\":null},{\"name\":\"HIANIME_ANIME\",\"dbName\":null},{\"name\":\"HIANIME_EPISODES\",\"dbName\":null},{\"name\":\"HIANIME_SOURCE\",\"dbName\":null},{\"name\":\"JIKAN_ANIME\",\"dbName\":null},{\"name\":\"ANIMEPAHE_HOME\",\"dbName\":null},{\"name\":\"ANIMEPAHE_ANIME\",\"dbName\":null}],\"dbName\":null}},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 config.compilerWasm = undefined

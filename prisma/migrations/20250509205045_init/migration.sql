@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE "CacheJSON" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL,
+    "cachedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "json" JSONB NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "AnimePaheAnimesID" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "session" TEXT NOT NULL,
+    "cachedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
