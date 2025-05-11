@@ -66,7 +66,7 @@ export function stringToStatus(str: string | null | undefined): HiAnime.Status {
   return null;
 }
 
-export default function toMinimalAnimeInfoArray(data: any[]) {
+export function toMinimalAnimeInfoArray(data: any[]) {
   return data
     .map((e) => {
       if (e.id === null) {
@@ -84,4 +84,20 @@ export default function toMinimalAnimeInfoArray(data: any[]) {
       return anime;
     })
     .filter((id) => id !== null);
+}
+
+export function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
+export function doesMatch(x: string, y: (string | null) | (string | null)[]) {
+  const first = slugify(x);
+  const targets = Array.isArray(y) ? y.map((str) => slugify(str ?? "")) : [slugify(y ?? "")];
+
+  return targets.some((target) => first === target);
 }

@@ -1,38 +1,56 @@
-import { CacheType, PrismaClient } from '../prisma/client.js'
+import { PrismaClient, Source } from "../lib/prisma/client.js";
+import { AnimePahe } from "./AnimePahe.js";
 
 export class Prisma {
-    static _client: PrismaClient | null = null;
-    static get client() {
-        if (!this._client) {
-            this._client = new PrismaClient();
-        }
-        return this._client;
+  static _client: PrismaClient | null = null;
+  static get client() {
+    if (!this._client) {
+      this._client = new PrismaClient();
     }
+    return this._client;
+  }
 
-    static async cacheJSON<T>(id: string, ignoreCache: boolean, type: CacheType, fetchFn: () => Promise<T>) {
-        if (!ignoreCache) {
-            const cached = await Prisma.client.cacheJSON.findUnique({ where: { id, type: type } });
-            if (cached) {
-                return cached.json as any as T;
-            }
-        }
-        const data = await fetchFn();
-        await Prisma.client.cacheJSON.upsert({
-            where: {
-                id,
-                type,
-            },
-            update: {
-                json: data as any,
-                cachedAt: new Date(),
-            },
-            create: {
-                id,
-                type,
-                json: data as any,
-            },
-
-        });
-        return data;
+  static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options: { useCache: boolean } = { useCache: true }) {
+    if (options.useCache) {
+      const cached = await Prisma.client.cachedResponse.findUnique({ where: { route, source } });
+      if (cached) {
+        return cached.data as any as T;
+      }
     }
+    const data = (await fetchFn(route)) as any;
+    await Prisma.client.cachedResponse.upsert({
+      where: {
+        route,
+        source,
+      },
+      update: {
+        data,
+        lastUpdated: new Date(),
+      },
+      create: {
+        route,
+        source,
+        data,
+      },
+    });
+    return data as T;
+  }
+
+  public static async updateAnimeID(anime: AnimePahe.AnimeID) {
+    await Prisma.client.animeID.upsert({
+      where: {
+        id: anime.id,
+      },
+      update: {
+        title: anime.title,
+        session: anime.session,
+        lastUpdated: new Date(),
+      },
+      create: {
+        id: anime.id,
+        title: anime.title,
+        session: anime.session,
+      },
+    });
+  }
 }
