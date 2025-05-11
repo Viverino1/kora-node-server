@@ -1,17 +1,43 @@
 import axios from "axios";
-import { jikanBaseURL } from "../server.js";
 import { Prisma } from "../core/Prisma.js";
-import { CacheType } from "../prisma/index.js";
-
+import { Source } from "../lib/prisma/index.js";
+import { jikanBaseURL } from "../server.js";
+import { doesMatch } from "../utils/utils.js";
 
 export class Jikan {
-  private static get _url() {
+  public static get url() {
     return jikanBaseURL;
   }
 
-  public static async getAnimeById(id: number, ignoreCache = false) {
-    const res = await Prisma.cacheJSON(id.toString(), ignoreCache, CacheType.JIKAN_ANIME, async () => (await axios.get(`${this._url}/anime/${id}/full`)).data);
-    return res.data as Jikan.Anime;
+  private static async _getAnime(route: string) {
+    const res = await axios.get(Jikan.url + route);
+    return res.data.data as Jikan.Anime;
+  }
+
+  public static async getAnime(id: number, options: { useCache: boolean } = { useCache: true }) {
+    const route = `/anime/${id}/full`;
+    return Prisma.cache(route, Source.JIKAN, this._getAnime, options);
+  }
+
+  private static async _getIdFromTitle(route: string, title: string) {
+    const res = await axios.get(Jikan.url + route);
+    if (!res.data?.data || !Array.isArray(res.data.data) || res.data.data.length === 0) {
+      return null;
+    }
+    const animes = res.data.data as Jikan.Anime[];
+    const match = animes.find((anime) => doesMatch(title, [anime.title, ...anime.title_synonyms, ...anime.titles.map((t) => t.title), anime.title_english, anime.title_japanese]));
+    return match ?? null;
+  }
+
+  public static async getAnimeFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
+    const route = `/anime?q=${title}`;
+    return Prisma.cache(route, Source.JIKAN, () => this._getIdFromTitle(route, title), options);
+  }
+
+  public static async _getEpisodes(route: string, page: number = 1): Promise<Jikan.Episode[]> {
+    const res = await axios.get(Jikan.url + `${route}?page=${page}`);
+    const data = res.data as Jikan.EpisodeList;
+    return [...data.data, ...(data.pagination.has_next_page ? await this._getEpisodes(route, page + 1) : [])];
   }
 }
 
@@ -158,5 +184,26 @@ export namespace Jikan {
 
   export interface AnimeResponse {
     data: Anime;
+  }
+
+  export interface EpisodeList {
+    pagination: {
+      last_visible_page: number;
+      has_next_page: boolean;
+    };
+    data: Episode[];
+  }
+
+  export interface Episode {
+    mal_id: number;
+    url: string;
+    title: string;
+    title_japanese: string;
+    title_romanji: string | null;
+    aired: string;
+    score: number;
+    filler: boolean;
+    recap: boolean;
+    forum_url: string;
   }
 }

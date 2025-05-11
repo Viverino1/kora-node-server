@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/prisma"
+  output   = "../src/lib/prisma"
 }
 
 datasource db {
@@ -11,26 +11,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CacheType {
-  HIANIME_ID
-  HIANIME_ANIME
-  HIANIME_EPISODES
-  HIANIME_SOURCE
-  JIKAN_ANIME
-  ANIMEPAHE_HOME
-  ANIMEPAHE_ANIME
+enum Source {
+  HIANIME
+  JIKAN
+  ANIMEPAHE
 }
 
-model CacheJSON {
-  id       String    @id
-  type     CacheType
-  cachedAt DateTime  @default(now())
-  json     Json
+model CachedResponse {
+  route       String @id
+  source      Source
+  data        Json
+  lastUpdated DateTime @default(now())
 }
 
-model AnimePaheAnimesID {
-  id       String   @id
-  title    String
-  session  String
-  cachedAt DateTime @default(now())
+model AnimeID {
+  id          String @id
+  title       String
+  session     String
+  lastUpdated DateTime @default(now())
 }
