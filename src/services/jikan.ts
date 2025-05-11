@@ -1,16 +1,20 @@
 import axios from "axios";
+import PQueue from "p-queue";
 import { Prisma } from "../core/Prisma.js";
 import { Source } from "../lib/prisma/index.js";
 import { jikanBaseURL } from "../server.js";
 import { doesMatch } from "../utils/utils.js";
 
 export class Jikan {
+  private static _queue = new PQueue({ interval: 1000, intervalCap: 1 });
+
   public static get url() {
     return jikanBaseURL;
   }
 
   private static async _getAnime(route: string) {
-    const res = await axios.get(Jikan.url + route);
+    const res = await this._queue.add(() => axios.get(Jikan.url + route));
+    if (!res || !res.data?.data) return null;
     return res.data.data as Jikan.Anime;
   }
 
@@ -20,8 +24,8 @@ export class Jikan {
   }
 
   private static async _getIdFromTitle(route: string, title: string) {
-    const res = await axios.get(Jikan.url + route);
-    if (!res.data?.data || !Array.isArray(res.data.data) || res.data.data.length === 0) {
+    const res = await this._queue.add(() => axios.get(Jikan.url + route));
+    if (!res || !res.data?.data || !Array.isArray(res.data.data) || res.data.data.length === 0) {
       return null;
     }
     const animes = res.data.data as Jikan.Anime[];
@@ -34,10 +38,17 @@ export class Jikan {
     return Prisma.cache(route, Source.JIKAN, () => this._getIdFromTitle(route, title), options);
   }
 
-  public static async _getEpisodes(route: string, page: number = 1): Promise<Jikan.Episode[]> {
-    const res = await axios.get(Jikan.url + `${route}?page=${page}`);
+  public static async _getEpisodes(route: string, page: number = 1): Promise<Jikan.Episode[] | null> {
+    const res = await this._queue.add(() => axios.get(`${Jikan.url}${route}?page=${page}`));
+    if (!res || !res.data?.data) return null;
     const data = res.data as Jikan.EpisodeList;
-    return [...data.data, ...(data.pagination.has_next_page ? await this._getEpisodes(route, page + 1) : [])];
+    if (data.pagination.has_next_page) {
+      const nextPage = await this._getEpisodes(route, page + 1);
+      if (nextPage) {
+        return [...data.data, ...nextPage];
+      }
+    }
+    return data.data;
   }
 }
 

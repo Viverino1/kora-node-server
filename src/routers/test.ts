@@ -9,9 +9,9 @@ router.get("/test", async (_req: Request, res: Response) => {
   //   session: "ea2cd882-e962-9fce-b066-299427abf79d",
   //   title: "Fire Force",
   // });
-  //const data = await AnimePahe.updateAllAnime();
-  //const data = await Jikan.getAnimeFromTitle("One Piece Film: Z");
-  //const data = await HiAnime.getIdFromTitle("One Piece Film: Z");
+  // const data = await AnimePahe.updateAllAnime();
+  // const data = await Jikan.getAnimeFromTitle("One Piece Film: Z");
+  // const data = await HiAnime.getIdFromTitle("One Piece Film: Z");
   const data = await Jikan._getEpisodes("/anime/22/episodes");
   res.json(data);
 });
