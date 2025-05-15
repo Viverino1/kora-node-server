@@ -17,7 +17,10 @@ export class Prisma {
         return cached.data as any as T;
       }
     }
-    const data = (await fetchFn(route)) as any;
+    let data = null;
+    try {
+      data = (await fetchFn(route)) as any;
+    } catch (e) {}
     await Prisma.client.cachedResponse.upsert({
       where: {
         route,

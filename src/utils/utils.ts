@@ -51,7 +51,7 @@ export function stringOrNullToNumberOrNull(value: string | null): number | null 
 
 export function stringOrStringArrayToStringArray(aired: string | string[]): string[] {
   const value = Array.isArray(aired) ? aired : [aired];
-  return value.map((s) => s.trim()).filter((s) => s !== "");
+  return value.map((s) => s?.trim()).filter((s) => s !== "");
 }
 /**
  * Converts a string to a Status type ("upcoming" | "airing" | "finished" | null)
@@ -100,4 +100,35 @@ export function doesMatch(x: string, y: (string | null) | (string | null)[]) {
   const targets = Array.isArray(y) ? y.map((str) => slugify(str ?? "")) : [slugify(y ?? "")];
 
   return targets.some((target) => first === target);
+}
+
+export function timeStringToMinutes(timeStr: string | null): number | null {
+  if (!timeStr) return null;
+
+  const hours = timeStr.match(/(\d+)\s*(?:hr|h)/);
+  const minutes = timeStr.match(/(\d+)\s*(?:min|m)/);
+
+  const totalMinutes = (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
+
+  return totalMinutes || null;
+}
+
+export function ensureNoDuplicates(arr: (string | null)[] | null): string[] {
+  if (!arr) return [];
+  const slugMap = new Map<string, string>();
+
+  arr.forEach((str) => {
+    if (str) {
+      const slug = slugify(str);
+      if (!slugMap.has(slug)) {
+        slugMap.set(slug, str);
+      }
+    }
+  });
+
+  return Array.from(slugMap.values());
+}
+
+export function encodeQueryParameter(value: string): string {
+  return encodeURIComponent(value).replace(/%/g, "%25");
 }

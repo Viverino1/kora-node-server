@@ -53,14 +53,16 @@ class Puppeteer {
       referer: referer ?? undefined,
     });
     const selectorArray = Array.isArray(selectors) ? selectors : [selectors];
-    await Promise.all(
-      selectorArray.map((selector) =>
-        page.waitForSelector(selector, {
-          visible: false,
-          timeout: 30000,
-        })
-      )
-    );
+    try {
+      await Promise.all(
+        selectorArray.map((selector) =>
+          page.waitForSelector(selector, {
+            visible: false,
+            timeout: 5000,
+          })
+        )
+      );
+    } catch (e) {}
 
     const scriptArray = Array.isArray(scripts) ? scripts : [scripts];
     const scriptResults = await Promise.all(

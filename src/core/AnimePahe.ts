@@ -1,21 +1,29 @@
+import PQueue from "p-queue";
 import { Source } from "../lib/prisma/index.js";
 import { animePaheBaseURL } from "../server.js";
 import { domPreparationScript } from "../utils/scripts.js";
+import { encodeQueryParameter } from "../utils/utils.js";
 import { Prisma } from "./Prisma.js";
 import Puppeteer from "./Puppeteer.js";
 
 class AnimePahe {
+  public static queue = new PQueue({ interval: 1000, intervalCap: 1 });
+
   public static get url() {
     return animePaheBaseURL;
   }
 
   static async initialize() {
     if (!this.url) throw new Error("AnimePahe url is not defined");
-    //await Puppeteer.get(this.url);
+    //await this.updateAllAnime();
   }
 
   private static async _getHome(route: string) {
-    const { content } = await Puppeteer.get(AnimePahe.url + route, ["div.episode-snapshot a", "span.episode-title a"]);
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(AnimePahe.url + route, ["div.episode-snapshot a", "span.episode-title a"]));
+    if (!res || !res.content) {
+      return null;
+    }
+    const { content } = res;
     const data = content.querySelectorAll("div.episode");
     const animes = Array.from(data)
       .map((episode) => {
@@ -28,7 +36,7 @@ class AnimePahe {
         const id: AnimePahe.AnimeID = {
           title,
           session,
-          id: encodeURIComponent(title),
+          id: encodeQueryParameter(title),
         };
 
         return id;
@@ -40,12 +48,17 @@ class AnimePahe {
   }
 
   public static async getHome(options: { useCache: boolean } = { useCache: true }) {
-    return Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
+    const data = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
+    return data;
   }
 
-  private static async _getAllAnime() {
+  public static async getAllAnime() {
     const selectors = ["hash", ...[...Array(26)].map((_, i) => String.fromCharCode(65 + i))].map((id) => `div#${id}`);
-    const { content } = await Puppeteer.get(`${this.url}/anime`, selectors);
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${this.url}/anime`, selectors));
+    if (!res || !res.content) {
+      return null;
+    }
+    const { content } = res;
     const data = content.querySelectorAll("div.tab-pane a");
     const animes = Array.from(data)
       .map((anime) => {
@@ -55,7 +68,7 @@ class AnimePahe {
         const id: AnimePahe.AnimeID = {
           title,
           session,
-          id: encodeURIComponent(title),
+          id: encodeQueryParameter(title),
         };
         return id;
       })
@@ -82,7 +95,11 @@ class AnimePahe {
   }
 
   public static async updateAllAnime() {
-    const { animes } = await this._getAllAnime();
+    const res = await this.getAllAnime();
+    if (!res || !res.animes) {
+      return null;
+    }
+    const { animes } = res;
     const existingAnimes = await Prisma.client.animeID.findMany();
 
     const createdAnimes: AnimePahe.AnimeID[] = [];
@@ -108,7 +125,6 @@ class AnimePahe {
         },
       });
     }
-
     return {
       createdAnimes,
       updatedAnimes,
@@ -117,7 +133,11 @@ class AnimePahe {
   }
 
   public static async _getAnime(session: string) {
-    const { content } = await Puppeteer.get(`${AnimePahe.url}/anime/${session}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]);
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
+    if (!res || !res.content) {
+      return null;
+    }
+    const { content } = res;
     const data = content.querySelectorAll("div.episode");
     const episodes = Array.from(data).map((episode, i, arr) => {
       const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
@@ -179,7 +199,6 @@ class AnimePahe {
         infoData.duration = isNaN(mins) ? null : mins;
       } else if (text.startsWith("Aired:")) {
         const dateText = text.replace("Aired:", "").trim();
-        console.log(dateText);
         const [start, end] = dateText.split("to").map((d) => d.trim());
         infoData.aired = {
           start: new Date(start).toISOString().split("T")[0],
@@ -211,7 +230,7 @@ class AnimePahe {
       id: {
         title,
         session,
-        id: encodeURIComponent(title),
+        id: encodeQueryParameter(title),
       },
       title,
       poster,
@@ -227,13 +246,18 @@ class AnimePahe {
     return anime;
   }
 
-  public static async getAnime(id: AnimePahe.AnimeID) {
-    return Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, () => this._getAnime(id.session));
+  public static async getAnime(id: AnimePahe.AnimeID, options: { useCache: boolean } = { useCache: true }) {
+    const data = Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, () => this._getAnime(id.session), options);
+    return data;
   }
 
   public static async _getSource(animeSession: string, episodeSession: string) {
     const url = new URL(`/play/${animeSession}/${episodeSession}`, AnimePahe.url);
-    const { content } = await Puppeteer.get(url.href, "div#resolutionMenu button");
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(url.href, "div#resolutionMenu button"));
+    if (!res || !res.content) {
+      return null;
+    }
+    const { content } = res;
     const data = content.querySelectorAll("div#resolutionMenu button");
 
     const streams = Array.from(data).map((button) => ({
@@ -268,12 +292,12 @@ class AnimePahe {
       source: stream.text,
       resolution: stream.resolution,
     };
-
     return source;
   }
 
-  public static async getSource(id: AnimePahe.EpisodeID) {
-    return Prisma.cache(`/play/${id.animeID.id}/${id.number}`, Source.ANIMEPAHE, () => this._getSource(id.animeID.session, id.session));
+  public static async getSource(id: AnimePahe.EpisodeID, options: { useCache: boolean } = { useCache: true }) {
+    const data = Prisma.cache(`/play/${id.animeID.id}/${id.number}`, Source.ANIMEPAHE, () => this._getSource(id.animeID.session, id.session), options);
+    return data;
   }
 }
 

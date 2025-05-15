@@ -3,28 +3,29 @@ import PQueue from "p-queue";
 import { Prisma } from "../core/Prisma.js";
 import { Source } from "../lib/prisma/index.js";
 import { jikanBaseURL } from "../server.js";
-import { doesMatch } from "../utils/utils.js";
+import { doesMatch, encodeQueryParameter } from "../utils/utils.js";
 
 export class Jikan {
-  private static _queue = new PQueue({ interval: 1000, intervalCap: 1 });
+  public static queue = new PQueue({ interval: 1000, intervalCap: 1 });
 
   public static get url() {
     return jikanBaseURL;
   }
 
   private static async _getAnime(route: string) {
-    const res = await this._queue.add(() => axios.get(Jikan.url + route));
+    const res = await Jikan.queue.add(() => axios.get(Jikan.url + route));
     if (!res || !res.data?.data) return null;
     return res.data.data as Jikan.Anime;
   }
 
   public static async getAnime(id: number, options: { useCache: boolean } = { useCache: true }) {
     const route = `/anime/${id}/full`;
-    return Prisma.cache(route, Source.JIKAN, this._getAnime, options);
+    const data = await Prisma.cache(route, Source.JIKAN, this._getAnime, options);
+    return data;
   }
 
   private static async _getIdFromTitle(route: string, title: string) {
-    const res = await this._queue.add(() => axios.get(Jikan.url + route));
+    const res = await Jikan.queue.add(() => axios.get(Jikan.url + route));
     if (!res || !res.data?.data || !Array.isArray(res.data.data) || res.data.data.length === 0) {
       return null;
     }
@@ -34,12 +35,13 @@ export class Jikan {
   }
 
   public static async getAnimeFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
-    const route = `/anime?q=${title}`;
-    return Prisma.cache(route, Source.JIKAN, () => this._getIdFromTitle(route, title), options);
+    const route = `/anime?q=${encodeQueryParameter(title)}`;
+    const data = await Prisma.cache(route, Source.JIKAN, () => this._getIdFromTitle(route, title), options);
+    return data;
   }
 
   public static async _getEpisodes(route: string, page: number = 1): Promise<Jikan.Episode[] | null> {
-    const res = await this._queue.add(() => axios.get(`${Jikan.url}${route}?page=${page}`));
+    const res = await Jikan.queue.add(() => axios.get(`${Jikan.url}${route}?page=${page}`));
     if (!res || !res.data?.data) return null;
     const data = res.data as Jikan.EpisodeList;
     if (data.pagination.has_next_page) {
