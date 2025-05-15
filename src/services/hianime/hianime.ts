@@ -1,20 +1,23 @@
 import { HiAnime as HiAnimeTypes } from "aniwatch";
 import axios from "axios";
 
+import PQueue from "p-queue";
 import { Prisma } from "../../core/Prisma.js";
 import { Source } from "../../lib/prisma/index.js";
 import { aniwatchPort, baseURL } from "../../server.js";
-import { doesMatch } from "../../utils/utils.js";
+import { doesMatch, encodeQueryParameter } from "../../utils/utils.js";
 import HiAnimeParser from "./hiAnimeParser.js";
 
 export class HiAnime {
+  public static queue = new PQueue({ interval: 1000, intervalCap: 1 });
+
   public static get url() {
     return `${baseURL}:${aniwatchPort}/api/v2/hianime`;
   }
 
   private static async _getIdFromTitle(route: string, title: string) {
-    const res = await axios.get(HiAnime.url + route);
-    if (!res.data?.data || !res.data.data?.animes || !Array.isArray(res.data.data.animes) || res.data.data.animes.length === 0) {
+    const res = await HiAnime.queue.add(() => axios.get(HiAnime.url + route));
+    if (!res || !res.data?.data || !res.data.data?.animes || !Array.isArray(res.data.data.animes) || res.data.data.animes.length === 0) {
       return null;
     }
     const data = res.data.data as HiAnimeTypes.ScrapedAnimeSearchResult;
@@ -24,40 +27,51 @@ export class HiAnime {
   }
 
   public static async getIdFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
-    const route = `/search?q=${title}`;
-    return Prisma.cache(route, Source.HIANIME, () => this._getIdFromTitle(route, title), options);
+    try {
+      const route = `/search?q=${encodeQueryParameter(title)}`;
+      const data = await Prisma.cache(route, Source.HIANIME, () => this._getIdFromTitle(route, title), options);
+      return data;
+    } catch (e) {
+      return null;
+    }
   }
 
   private static async _getAnime(route: string) {
-    const res = await axios.get(HiAnime.url + route);
+    const res = await HiAnime.queue.add(() => axios.get(HiAnime.url + route));
+    if (!res || !res.data || !res.data.data) return null;
     const parsedRes = HiAnimeParser.anime(res.data.data as any);
     return parsedRes;
   }
 
   public static async getAnime(id: string, options: { useCache: boolean } = { useCache: true }) {
     const route = `/anime/${id}`;
-    return Prisma.cache(route, Source.HIANIME, this._getAnime, options);
+    const data = await Prisma.cache(route, Source.HIANIME, this._getAnime, options);
+    return data;
   }
 
   private static async _getEpisodes(route: string) {
-    const res = await axios.get(HiAnime.url + route);
+    const res = await HiAnime.queue.add(() => axios.get(HiAnime.url + route));
+    if (!res || !res.data || !res.data.data) return null;
     const parsedRes = HiAnimeParser.episodes(res.data.data);
     return parsedRes;
   }
   public static async getEpisodes(id: string, options: { useCache: boolean } = { useCache: true }) {
     const route = `/anime/${id}/episodes`;
-    return Prisma.cache(route, Source.HIANIME, this._getEpisodes, options);
+    const data = await Prisma.cache(route, Source.HIANIME, this._getEpisodes, options);
+    return data;
   }
 
   private static async _getSource(route: string) {
-    const res = await axios.get(HiAnime.url + route);
+    const res = await HiAnime.queue.add(() => axios.get(HiAnime.url + route));
+    if (!res || !res.data || !res.data.data) return null;
     const parsedRes = HiAnimeParser.source(res.data.data);
     return parsedRes;
   }
 
   public static async getSource(id: string, options: { useCache: boolean } = { useCache: true }) {
     const route = `/episode/sources?animeEpisodeId=${id}`;
-    return Prisma.cache(route, Source.HIANIME, this._getSource, options);
+    const data = await Prisma.cache(route, Source.HIANIME, this._getSource, options);
+    return data;
   }
 }
 

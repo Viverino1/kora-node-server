@@ -1,5 +1,5 @@
 import { HiAnime as HiAnimeTypes } from "aniwatch";
-import { ensureNotZero, extractStartEndDates, sanitizeDescription, splitStringToStringArray, stringOrNullToNumberOrNull, stringOrStringArrayToString, stringOrStringArrayToStringArray, stringToStatus } from "../../utils/utils.js";
+import { encodeQueryParameter, ensureNotZero, extractStartEndDates, sanitizeDescription, splitStringToStringArray, stringOrNullToNumberOrNull, stringOrStringArrayToString, stringOrStringArrayToStringArray, stringToStatus, timeStringToMinutes } from "../../utils/utils.js";
 import { HiAnime } from "./hianime.js";
 
 export default class HiAnimeParser {
@@ -23,13 +23,13 @@ export default class HiAnimeParser {
       quality,
       episodeCount: episodes.sub ?? 0,
       type,
-      duration: stringOrNullToNumberOrNull(duration),
+      duration: timeStringToMinutes(duration),
       startDate,
       endDate,
       season: stringOrStringArrayToString(premiered),
       status: stringToStatus(stringOrStringArrayToString(status)),
       malscore: stringOrNullToNumberOrNull(stringOrStringArrayToString(malscore)),
-      genres: stringOrStringArrayToStringArray(genres),
+      genres: genres ? stringOrStringArrayToStringArray(genres) : [],
       studios: studios ? splitStringToStringArray(stringOrStringArrayToString(studios)) : [],
       producers: producers ? stringOrStringArrayToStringArray(producers) : [],
       recommendedAnime: recommendedAnimes
@@ -77,7 +77,7 @@ export default class HiAnimeParser {
           return null;
         }
         const normalizedEpisode: HiAnime.Episode = {
-          id: encodeURIComponent(episode.episodeId),
+          id: encodeQueryParameter(episode.episodeId),
           title: episode.title,
           number: episode.number,
           isFiller: episode.isFiller,
