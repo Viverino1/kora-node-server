@@ -137,5 +137,4 @@ dist
 
 node_modules
 
-external
 src/lib
