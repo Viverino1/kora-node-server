@@ -1,5 +1,5 @@
 import { HiAnime as HiAnimeTypes } from "aniwatch";
-import { encodeQueryParameter, ensureNotZero, extractStartEndDates, sanitizeDescription, splitStringToStringArray, stringOrNullToNumberOrNull, stringOrStringArrayToString, stringOrStringArrayToStringArray, stringToStatus, timeStringToMinutes } from "../../utils/utils.js";
+import { ensureNotZero, extractStartEndDates, sanitizeDescription, splitStringToStringArray, stringOrNullToNumberOrNull, stringOrStringArrayToString, stringOrStringArrayToStringArray, stringToStatus, timeStringToMinutes } from "../../utils/utils.js";
 import { HiAnime } from "./hianime.js";
 
 export default class HiAnimeParser {
@@ -77,7 +77,7 @@ export default class HiAnimeParser {
           return null;
         }
         const normalizedEpisode: HiAnime.Episode = {
-          id: encodeQueryParameter(episode.episodeId),
+          id: episode.episodeId,
           title: episode.title,
           number: episode.number,
           isFiller: episode.isFiller,

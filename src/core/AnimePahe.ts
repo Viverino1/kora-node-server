@@ -2,7 +2,7 @@ import PQueue from "p-queue";
 import { Source } from "../lib/prisma/index.js";
 import { animePaheBaseURL } from "../server.js";
 import { domPreparationScript } from "../utils/scripts.js";
-import { encodeQueryParameter } from "../utils/utils.js";
+import { encodeStringToId } from "../utils/utils.js";
 import { Prisma } from "./Prisma.js";
 import Puppeteer from "./Puppeteer.js";
 
@@ -36,7 +36,7 @@ class AnimePahe {
         const id: AnimePahe.AnimeID = {
           title,
           session,
-          id: encodeQueryParameter(title),
+          id: encodeStringToId(title),
         };
 
         return id;
@@ -47,12 +47,12 @@ class AnimePahe {
     return animes;
   }
 
-  public static async getHome(options: { useCache: boolean } = { useCache: true }) {
+  public static async getHome(options = Prisma.defaultCacheOptions) {
     const data = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
     return data;
   }
 
-  public static async getAllAnime() {
+  private static async _getAnimeList() {
     const selectors = ["hash", ...[...Array(26)].map((_, i) => String.fromCharCode(65 + i))].map((id) => `div#${id}`);
     const res = await AnimePahe.queue.add(() => Puppeteer.get(`${this.url}/anime`, selectors));
     if (!res || !res.content) {
@@ -68,7 +68,7 @@ class AnimePahe {
         const id: AnimePahe.AnimeID = {
           title,
           session,
-          id: encodeQueryParameter(title),
+          id: encodeStringToId(title),
         };
         return id;
       })
@@ -94,12 +94,12 @@ class AnimePahe {
     };
   }
 
-  public static async updateAllAnime() {
-    const res = await this.getAllAnime();
+  public static async updateAnimeList() {
+    const res = await this._getAnimeList();
     if (!res || !res.animes) {
       return null;
     }
-    const { animes } = res;
+    const { animes, duplicateAnimes } = res;
     const existingAnimes = await Prisma.client.animeID.findMany();
 
     const createdAnimes: AnimePahe.AnimeID[] = [];
@@ -110,10 +110,10 @@ class AnimePahe {
       const existingAnime = existingAnimes.find((existing) => existing.id === anime.id);
 
       if (!existingAnime) {
-        Prisma.updateAnimeID(anime);
+        await Prisma.updateAnimeID(anime);
         createdAnimes.push(anime);
       } else if (existingAnime.session !== anime.session) {
-        Prisma.updateAnimeID(anime);
+        await Prisma.updateAnimeID(anime);
         updatedAnimes.push(anime);
       }
     }
@@ -126,38 +126,63 @@ class AnimePahe {
       });
     }
     return {
+      allUniqueAnimes: animes,
       createdAnimes,
       updatedAnimes,
       deletedAnimes: staleAnimes,
     };
   }
 
-  public static async _getAnime(session: string) {
-    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
+  private static async _getAnime(session: string) {
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}?page=1`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
     if (!res || !res.content) {
       return null;
     }
     const { content } = res;
-    const data = content.querySelectorAll("div.episode");
-    const episodes = Array.from(data).map((episode, i, arr) => {
-      const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
 
-      const durationText = episode.querySelector("div.episode-label-wrap div.episode-label div.episode-title-wrap span")?.textContent ?? null;
-      const durationParts = durationText ? durationText.split(":").map(Number) : [0, 0, 0];
-      const duration = durationParts ? Math.round(durationParts[0] * 60 + durationParts[1] + durationParts[2] / 60) : null;
+    const maxPagesString = content.querySelector('a[title="Go to the Last Page"]')?.getAttribute("data-page");
+    const maxPages = maxPagesString ? Number(maxPagesString) : 1;
+    let episodes: AnimePahe.Episode[] = [];
 
-      const href = episode.querySelector("div.episode-snapshot a")?.getAttribute("href") || null;
-      const session = href ? href?.split("/")?.pop() ?? null : null;
+    for (let i = 1; i <= maxPages; i++) {
+      console.log(`Getting page ${i} of ${maxPages}...`);
+      const r = i == 0 ? res : await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}?page=${i}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
+      if (!r || !r.content) {
+        return;
+      }
+      const { content } = r;
+      const data = content.querySelectorAll("div.episode");
+      const eps = Array.from(data).map((episode, i, arr) => {
+        const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
 
-      const ep: AnimePahe.Episode = {
-        session,
-        thumbnail,
-        number: arr.length - i,
-        duration,
-      };
+        const durationText = episode.querySelector("div.episode-label-wrap div.episode-label div.episode-title-wrap span")?.textContent ?? null;
+        const durationParts = durationText ? durationText.split(":").map(Number) : [0, 0, 0];
+        const duration = durationParts ? Math.round(durationParts[0] * 60 + durationParts[1] + durationParts[2] / 60) : null;
 
-      return ep;
-    });
+        const href = episode.querySelector("div.episode-snapshot a")?.getAttribute("href") || null;
+        const session = href ? href?.split("/")?.pop() ?? null : null;
+
+        const epNumStr = episode.querySelector("div.episode-number")?.textContent?.toLocaleLowerCase().replace("episode", "").trim() ?? null;
+        const ep: AnimePahe.Episode = {
+          session,
+          thumbnail,
+          number: Number(epNumStr),
+          duration,
+        };
+
+        return ep;
+      });
+
+      if (eps.length === 0) {
+        console.log(`No episodes found on page ${i} of ${maxPages}`);
+        return;
+      }
+
+      episodes = episodes.concat(eps);
+      console.log(`Got ${eps.length}. Total: ${episodes.length}`);
+    }
+
+    episodes = episodes.sort((a, b) => a.number - b.number);
 
     const poster = content.querySelector("div.anime-poster a")?.getAttribute("href") || null;
 
@@ -230,7 +255,7 @@ class AnimePahe {
       id: {
         title,
         session,
-        id: encodeQueryParameter(title),
+        id: encodeStringToId(title),
       },
       title,
       poster,
@@ -246,7 +271,7 @@ class AnimePahe {
     return anime;
   }
 
-  public static async getAnime(id: AnimePahe.AnimeID, options: { useCache: boolean } = { useCache: true }) {
+  public static async getAnime(id: AnimePahe.AnimeID, options = Prisma.defaultCacheOptions) {
     const data = Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, () => this._getAnime(id.session), options);
     return data;
   }
@@ -295,7 +320,7 @@ class AnimePahe {
     return source;
   }
 
-  public static async getSource(id: AnimePahe.EpisodeID, options: { useCache: boolean } = { useCache: true }) {
+  public static async getSource(id: AnimePahe.EpisodeID, options = Prisma.defaultCacheOptions) {
     const data = Prisma.cache(`/play/${id.animeID.id}/${id.number}`, Source.ANIMEPAHE, () => this._getSource(id.animeID.session, id.session), options);
     return data;
   }

@@ -10,11 +10,11 @@ export class Prisma {
     return this._client;
   }
 
-  static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options: { useCache: boolean } = { useCache: true }) {
+  static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options = this.defaultCacheOptions): Promise<T | null> {
     if (options.useCache) {
       const cached = await Prisma.client.cachedResponse.findUnique({ where: { route, source } });
       if (cached) {
-        return cached.data as any as T;
+        return (cached.data as any).json as T;
       }
     }
     let data = null;
@@ -27,13 +27,14 @@ export class Prisma {
         source,
       },
       update: {
-        data,
+        data: { json: data },
         lastUpdated: new Date(),
       },
       create: {
         route,
         source,
-        data,
+        data: { json: data },
+        animeID: options.animeID,
       },
     });
     return data as T;
@@ -56,4 +57,24 @@ export class Prisma {
       },
     });
   }
+
+  public static async clearRelatedCache(id: string) {
+    await Prisma.client.cachedResponse.deleteMany({
+      where: {
+        animeID: id,
+      },
+    });
+  }
+}
+
+export namespace Prisma {
+  export interface CacheOptions {
+    useCache: boolean;
+    animeID: string | null;
+  }
+
+  export const defaultCacheOptions: Prisma.CacheOptions = {
+    useCache: true,
+    animeID: null,
+  };
 }
