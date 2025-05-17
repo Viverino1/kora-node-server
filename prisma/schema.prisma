@@ -20,6 +20,7 @@ enum Source {
 model CachedResponse {
   route       String @id
   source      Source
+  animeID     String?
   data        Json
   lastUpdated DateTime @default(now())
 }

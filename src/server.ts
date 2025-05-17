@@ -4,8 +4,9 @@ import hianime from "../external/hianime/dist/src/server.js";
 import AnimePahe from "./core/AnimePahe.js";
 import { Indexer } from "./core/Indexer.js";
 import Puppeteer from "./core/Puppeteer.js";
+import anime from "./routers/anime.js";
+import dev from "./routers/dev.js";
 import health from "./routers/health.js";
-import seed from "./routers/seed.js";
 export const port = process.env.PORT;
 export const aniwatchPort = process.env.ANIWATCH_API_PORT;
 export const baseURL = process.env.BASE_URL;
@@ -15,7 +16,8 @@ export const animePaheBaseURL = process.env.ANIMEPAHE_API_BASE_URL;
 const app = express();
 app.use(express.json());
 app.use(health);
-app.use(seed);
+app.use(dev);
+app.use(anime);
 
 app.listen(port);
 

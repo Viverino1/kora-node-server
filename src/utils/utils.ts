@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { HiAnime } from "../services/hianime/hianime.js";
 
 export function ensureNotZero(value: number | null): number | null {
@@ -129,6 +130,6 @@ export function ensureNoDuplicates(arr: (string | null)[] | null): string[] {
   return Array.from(slugMap.values());
 }
 
-export function encodeQueryParameter(value: string): string {
-  return encodeURIComponent(value).replace(/%/g, "%25");
+export function encodeStringToId(str: string) {
+  return crypto.createHash("sha256").update(str).digest("hex");
 }

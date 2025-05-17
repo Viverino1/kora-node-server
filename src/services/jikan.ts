@@ -3,7 +3,7 @@ import PQueue from "p-queue";
 import { Prisma } from "../core/Prisma.js";
 import { Source } from "../lib/prisma/index.js";
 import { jikanBaseURL } from "../server.js";
-import { doesMatch, encodeQueryParameter } from "../utils/utils.js";
+import { doesMatch } from "../utils/utils.js";
 
 export class Jikan {
   public static queue = new PQueue({ interval: 1000, intervalCap: 1 });
@@ -18,7 +18,7 @@ export class Jikan {
     return res.data.data as Jikan.Anime;
   }
 
-  public static async getAnime(id: number, options: { useCache: boolean } = { useCache: true }) {
+  public static async getAnime(id: number, options = Prisma.defaultCacheOptions) {
     const route = `/anime/${id}/full`;
     const data = await Prisma.cache(route, Source.JIKAN, this._getAnime, options);
     return data;
@@ -34,8 +34,8 @@ export class Jikan {
     return match ?? null;
   }
 
-  public static async getAnimeFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
-    const route = `/anime?q=${encodeQueryParameter(title)}`;
+  public static async getAnimeFromTitle(title: string, options = Prisma.defaultCacheOptions) {
+    const route = `/anime?q=${encodeURIComponent(title)}`;
     const data = await Prisma.cache(route, Source.JIKAN, () => this._getIdFromTitle(route, title), options);
     return data;
   }

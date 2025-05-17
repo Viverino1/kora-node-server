@@ -5,7 +5,7 @@ import PQueue from "p-queue";
 import { Prisma } from "../../core/Prisma.js";
 import { Source } from "../../lib/prisma/index.js";
 import { aniwatchPort, baseURL } from "../../server.js";
-import { doesMatch, encodeQueryParameter } from "../../utils/utils.js";
+import { doesMatch } from "../../utils/utils.js";
 import HiAnimeParser from "./hiAnimeParser.js";
 
 export class HiAnime {
@@ -28,7 +28,7 @@ export class HiAnime {
 
   public static async getIdFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
     try {
-      const route = `/search?q=${encodeQueryParameter(title)}`;
+      const route = `/search?q=${encodeURIComponent(title)}`;
       const data = await Prisma.cache(route, Source.HIANIME, () => this._getIdFromTitle(route, title), options);
       return data;
     } catch (e) {

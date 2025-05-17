@@ -3,9 +3,11 @@ import { Indexer } from "../core/Indexer.js";
 
 const router = Router();
 
-router.get("/seed", async (_req: Request, res: Response) => {
-  await Indexer.seed();
-  res.json({ status: "Finished seeding." });
+router.get("/dev/seed", async (_req: Request, res: Response) => {
+  Indexer.seed();
+  res.json({
+    status: "Started seeding db with all anime.",
+  });
 });
 
 export default router;
