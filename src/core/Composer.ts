@@ -6,7 +6,7 @@ import AnimePahe from "./AnimePahe.js";
 import { Prisma } from "./Prisma.js";
 
 export default class Composer {
-  public static async getAnime(id: string | AnimePahe.AnimeID, uid: string | null, history?: Kora.History, useCache: boolean = true) {
+  public static async getAnime(id: string | AnimePahe.AnimeID, uid?: string, history?: Kora.History, useCache: boolean = true) {
     if (typeof id === "string") {
       id = (await Prisma.client.animeID.findUnique({
         where: {
@@ -22,7 +22,7 @@ export default class Composer {
     return this._getAnime(id, uid, options, history);
   }
 
-  private static async _getAnime(id: AnimePahe.AnimeID, uid: string | null, options = Prisma.defaultCacheOptions, history?: Kora.History) {
+  private static async _getAnime(id: AnimePahe.AnimeID, uid?: string, options = Prisma.defaultCacheOptions, history?: Kora.History) {
     const startTime = performance.now();
     try {
       const [pahe, jikan, hiAnimeId] = await Promise.all([AnimePahe.getAnime(id, options), Jikan.getAnimeFromTitle(id.title, options), HiAnime.getIdFromTitle(id.title, options)]);

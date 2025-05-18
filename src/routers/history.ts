@@ -8,8 +8,6 @@ router.post("/history", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
-  } else {
-    console.log(userId);
   }
   try {
     const { animeId, epnum, timestamp } = _req.body;
