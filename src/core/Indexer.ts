@@ -15,6 +15,10 @@ export class Indexer {
   }
   private static async _update() {
     console.log(`Running update sequence...`);
+    await AnimePahe.getHome({
+      useCache: false,
+      animeID: null,
+    });
     const updates = await AnimePahe.updateAnimeList();
     updates?.createdAnimes.forEach((a) => {
       this.queue.add(() => Composer.getAnime(a));

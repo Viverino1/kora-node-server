@@ -1,5 +1,7 @@
 import { PrismaClient, Source } from "../lib/prisma/client.js";
+import { Kora } from "../types/api.js";
 import { AnimePahe } from "./AnimePahe.js";
+import Composer from "./Composer.js";
 
 export class Prisma {
   static _client: PrismaClient | null = null;
@@ -64,6 +66,88 @@ export class Prisma {
         animeID: id,
       },
     });
+  }
+
+  public static async getAnimeID(id: string) {
+    return (await Prisma.client.animeID.findUnique({
+      where: {
+        id,
+      },
+    })) as AnimePahe.AnimeID | null;
+  }
+
+  public static async getAllAnimeIDs() {
+    return (await Prisma.client.animeID.findMany()) as AnimePahe.AnimeID[];
+  }
+
+  public static async setHistory(uid: string, animeId: string, epnum: number, timestamp: number) {
+    await Prisma.client.history.upsert({
+      where: {
+        uid_epnum_animeId: {
+          uid,
+          animeId,
+          epnum: epnum.toString(),
+        },
+      },
+      update: {
+        lastUpdated: new Date(),
+        lastTimeStamp: timestamp,
+      },
+      create: {
+        uid,
+        animeId,
+        epnum: epnum.toString(),
+        lastTimeStamp: timestamp,
+      },
+    });
+  }
+
+  public static async getHistory(uid: string, animeId: string, epnum: number) {
+    const dbhis = await Prisma.client.history.findUnique({
+      where: {
+        uid_epnum_animeId: {
+          uid,
+          animeId,
+          epnum: epnum.toString(),
+        },
+      },
+    });
+
+    if (!dbhis) return null;
+
+    const history: Kora.History = {
+      ...dbhis,
+      epnum: parseInt(dbhis.epnum),
+      lastUpdated: dbhis.lastUpdated.toISOString(),
+      firstUpdated: dbhis.firstUpdated?.toISOString(),
+    };
+
+    return history;
+  }
+
+  public static async getRecentlyWatchedAnime(uid: string, limit?: number) {
+    console.log(limit);
+    const userHistory = await Prisma.client.history.findMany({
+      where: {
+        uid,
+      },
+      orderBy: {
+        lastUpdated: "desc",
+      },
+      distinct: ["animeId"],
+      ...(limit !== undefined ? { take: limit } : {}),
+    });
+
+    const history: Kora.History[] = userHistory.map((e) => ({
+      ...e,
+      epnum: parseInt(e.epnum),
+      lastUpdated: e.lastUpdated.toISOString(),
+      firstUpdated: e.firstUpdated?.toISOString(),
+    }));
+
+    const anime = (await Promise.all(history.map(async (h) => await Composer.getAnime(h.animeId, uid, h)))).filter((a) => a !== null);
+
+    return anime;
   }
 }
 
