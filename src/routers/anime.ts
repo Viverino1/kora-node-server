@@ -14,8 +14,6 @@ router.get("/anime/:id", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
-  } else {
-    console.log(userId);
   }
   const { id } = _req.params;
   const anime = await Composer.getAnime(id); // Don't pass options at all
@@ -26,12 +24,10 @@ router.get("/anime/:id/:epnum", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
-  } else {
-    console.log(userId);
   }
   const { id, epnum } = _req.params;
 
-  const source = await Composer.getSource(id, Number(epnum));
+  const source = await Composer.getSource(userId, id, Number(epnum));
 
   const history = await Prisma.getHistory(userId, id, Number(epnum));
 

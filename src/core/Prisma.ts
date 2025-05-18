@@ -126,7 +126,6 @@ export class Prisma {
   }
 
   public static async getRecentlyWatchedAnime(uid: string, limit?: number) {
-    console.log(limit);
     const userHistory = await Prisma.client.history.findMany({
       where: {
         uid,
