@@ -26,7 +26,7 @@ export class HiAnime {
     return match?.id ?? null;
   }
 
-  public static async getIdFromTitle(title: string, options: { useCache: boolean } = { useCache: true }) {
+  public static async getIdFromTitle(title: string, options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
     try {
       const route = `/search?q=${encodeURIComponent(title)}`;
       const data = await Prisma.cache(route, Source.HIANIME, () => this._getIdFromTitle(route, title), options);
@@ -43,7 +43,7 @@ export class HiAnime {
     return parsedRes;
   }
 
-  public static async getAnime(id: string, options: { useCache: boolean } = { useCache: true }) {
+  public static async getAnime(id: string, options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
     const route = `/anime/${id}`;
     const data = await Prisma.cache(route, Source.HIANIME, this._getAnime, options);
     return data;
@@ -55,7 +55,7 @@ export class HiAnime {
     const parsedRes = HiAnimeParser.episodes(res.data.data);
     return parsedRes;
   }
-  public static async getEpisodes(id: string, options: { useCache: boolean } = { useCache: true }) {
+  public static async getEpisodes(id: string, options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
     const route = `/anime/${id}/episodes`;
     const data = await Prisma.cache(route, Source.HIANIME, this._getEpisodes, options);
     return data;
@@ -68,7 +68,8 @@ export class HiAnime {
     return parsedRes;
   }
 
-  public static async getSource(id: string, options: { useCache: boolean } = { useCache: true }) {
+  public static async getSource(id: string | null, options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
+    if (!id) return null;
     const route = `/episode/sources?animeEpisodeId=${id}`;
     const data = await Prisma.cache(route, Source.HIANIME, this._getSource, options);
     return data;

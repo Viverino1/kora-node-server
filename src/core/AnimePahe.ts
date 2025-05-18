@@ -320,8 +320,8 @@ class AnimePahe {
     return source;
   }
 
-  public static async getSource(id: AnimePahe.EpisodeID, options = Prisma.defaultCacheOptions) {
-    const data = Prisma.cache(`/play/${id.animeID.id}/${id.number}`, Source.ANIMEPAHE, () => this._getSource(id.animeID.session, id.session), options);
+  public static async getSource(id: string, aSesh: string, epnum: number, eSesh: string, options = Prisma.defaultCacheOptions) {
+    const data = Prisma.cache(`/play/${id}/${epnum}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
     return data;
   }
 }
