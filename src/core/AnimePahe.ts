@@ -104,10 +104,10 @@ class AnimePahe {
 
     const createdAnimes: AnimePahe.AnimeID[] = [];
     const updatedAnimes: AnimePahe.AnimeID[] = [];
-    const staleAnimes = existingAnimes.filter((existingAnime) => !animes.some((anime) => anime.id === existingAnime.id));
+    const staleAnimes = existingAnimes.filter((existingAnime: AnimePahe.AnimeID) => !animes.some((anime) => anime.id === existingAnime.id));
 
     for (const anime of animes) {
-      const existingAnime = existingAnimes.find((existing) => existing.id === anime.id);
+      const existingAnime = existingAnimes.find((existing: AnimePahe.AnimeID) => existing.id === anime.id);
 
       if (!existingAnime) {
         await Prisma.updateAnimeID(anime);

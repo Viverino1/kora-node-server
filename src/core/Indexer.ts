@@ -38,7 +38,7 @@ export class Indexer {
       updates?.updatedAnimes.forEach((a) => {
         this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
       });
-      updates?.deletedAnimes.forEach((a) => {
+      updates?.deletedAnimes.forEach((a: AnimePahe.AnimeID) => {
         this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
       });
     }
