@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { baseURL, port } from "../server.js";
 import { HiAnime } from "../services/hianime/hianime.js";
 
 export function ensureNotZero(value: number | null): number | null {
@@ -132,4 +133,9 @@ export function ensureNoDuplicates(arr: (string | null)[] | null): string[] {
 
 export function encodeStringToId(str: string) {
   return crypto.createHash("sha256").update(str).digest("hex");
+}
+
+export function proxyUrl(url: string | null) {
+  if (!url) return null;
+  return `${baseURL}:${port}/proxy/pahe?url=${encodeURIComponent(url)}`;
 }

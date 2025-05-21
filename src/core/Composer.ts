@@ -1,7 +1,7 @@
 import { HiAnime } from "../services/hianime/hianime.js";
 import { Jikan } from "../services/jikan.js";
 import { Kora } from "../types/api.js";
-import { doesMatch, ensureNoDuplicates, timeStringToMinutes } from "../utils/utils.js";
+import { doesMatch, ensureNoDuplicates, proxyUrl, timeStringToMinutes } from "../utils/utils.js";
 import AnimePahe from "./AnimePahe.js";
 import { Prisma } from "./Prisma.js";
 
@@ -41,7 +41,7 @@ export default class Composer {
             session: e.session,
             hiAnimeEpisodeId: hiAnimeEpisode?.id ?? null,
             title: hiAnimeEpisode?.title ?? `Episode ${e.number}`,
-            thumbnail: e.thumbnail,
+            thumbnail: proxyUrl(e.thumbnail),
             duration: e.duration,
             isFiller: hiAnimeEpisode?.isFiller ?? null,
           };
@@ -49,6 +49,8 @@ export default class Composer {
         })
         .filter((ep) => ep !== null)
         .sort((a, b) => a.number - b.number);
+
+      const poster = pahe.poster ?? jikan?.images.jpg.large_image_url ?? hiAnime?.poster ?? null;
 
       const anime: Kora.Anime | null = {
         id: id.id,
@@ -59,7 +61,7 @@ export default class Composer {
         history: history ?? null,
         title: pahe.title,
         description: pahe.synopsis ?? jikan?.synopsis ?? hiAnime?.description ?? null,
-        poster: pahe.poster ?? jikan?.images.jpg.large_image_url ?? hiAnime?.poster ?? null,
+        poster: proxyUrl(poster),
         trailer: {
           ytid: jikan?.trailer.youtube_id ?? null,
           thumbnail: jikan?.trailer.images?.maximum_image_url ?? null,
@@ -115,8 +117,8 @@ export default class Composer {
     }
   }
 
-  public static async getSource(uid: string, id: string, epnum: number) {
-    const anime = await Composer.getAnime(uid, id);
+  public static async getSource(uid: string | null, id: string, epnum: number) {
+    const anime = await Composer.getAnime(id, undefined);
     const ep = anime?.episodes[epnum - 1];
 
     if (!anime || !ep) return null;

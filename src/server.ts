@@ -10,6 +10,7 @@ import dev from "./routers/dev.js";
 import health from "./routers/health.js";
 import history from "./routers/history.js";
 import home from "./routers/home.js";
+import proxy from "./routers/proxy.js";
 export const port = process.env.PORT;
 export const aniwatchPort = process.env.ANIWATCH_API_PORT;
 export const baseURL = process.env.BASE_URL;
@@ -21,11 +22,13 @@ export const clerkIssuer = process.env.CLERK_ISSUER;
 const app = express();
 app.use(cors()); // Add this line to enable CORS for all origins
 app.use(express.json());
+app.disable("x-powered-by");
 app.use(health);
 app.use(dev);
 app.use(anime);
 app.use(home);
 app.use(history);
+app.use(proxy);
 
 app.listen(port);
 
