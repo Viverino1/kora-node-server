@@ -48,15 +48,7 @@ RUN git clone https://github.com/Viverino1/kora-node-server.git .
 
 # Install dependencies
 RUN npm install
-
-# Generate Prisma client first in the correct location
-RUN mkdir -p src/lib/prisma
 RUN npx prisma generate
-
-# Copy generated Prisma client to src directory
-RUN cp -r dist/lib/prisma/* src/lib/prisma/
-
-# Then build the application
 RUN npm run build
 
 # Expose ports (adjust if needed)
