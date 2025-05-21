@@ -1,7 +1,7 @@
 import axios from "axios";
 import PQueue from "p-queue";
+import { Source } from "../../dist/lib/prisma/index.js";
 import { Prisma } from "../core/Prisma.js";
-import { Source } from "../lib/prisma/index.js";
 import { jikanBaseURL } from "../server.js";
 import { doesMatch } from "../utils/utils.js";
 

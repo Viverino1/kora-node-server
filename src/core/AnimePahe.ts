@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { Source } from "../lib/prisma/index.js";
+import { Source } from "../../dist/lib/prisma/index.js";
 import { animePaheBaseURL } from "../server.js";
 import { domPreparationScript } from "../utils/scripts.js";
 import { encodeStringToId } from "../utils/utils.js";
