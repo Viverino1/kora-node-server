@@ -140,3 +140,4 @@ node_modules
 src/lib
 package-lock.json
 migrations
+/prisma/generated

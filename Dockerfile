@@ -51,7 +51,7 @@ RUN npm install
 
 # Generate Prisma client first in the correct location
 RUN mkdir -p src/lib/prisma
-RUN npx prisma generate --schema=./prisma/schema.prisma
+RUN npx prisma generate
 
 # Copy generated Prisma client to src directory
 RUN cp -r dist/lib/prisma/* src/lib/prisma/
