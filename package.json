@@ -2,12 +2,12 @@
   "name": "kora-meida-scraper",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.ts",
+  "main": "dist/server.js",
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && prisma generate",
     "watch": "tsc -w",
     "postinstall": "cd external/hianime/dist && npm install"
   },

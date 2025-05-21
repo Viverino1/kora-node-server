@@ -1,13 +1,11 @@
 import { Request, Response, Router } from "express";
-import { Indexer } from "../core/Indexer.js";
+import { Prisma } from "../core/Prisma.js";
 
 const router = Router();
 
-router.get("/dev/seed", async (_req: Request, res: Response) => {
-  Indexer.seed();
-  res.json({
-    status: "Started seeding db with all anime.",
-  });
+router.get("/dev/get", async (_req: Request, res: Response) => {
+  const data = await Prisma.getAllAnimeIDs();
+  return res.json(data);
 });
 
 export default router;
