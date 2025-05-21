@@ -1,4 +1,4 @@
-import { PrismaClient, Source } from "../lib/prisma/client.js";
+import { PrismaClient, Source } from "../../dist/lib/prisma/client.js";
 import { Kora } from "../types/api.js";
 import { AnimePahe } from "./AnimePahe.js";
 import Composer from "./Composer.js";

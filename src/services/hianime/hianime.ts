@@ -2,8 +2,8 @@ import { HiAnime as HiAnimeTypes } from "aniwatch";
 import axios from "axios";
 
 import PQueue from "p-queue";
+import { Source } from "../../../dist/lib/prisma/index.js";
 import { Prisma } from "../../core/Prisma.js";
-import { Source } from "../../lib/prisma/index.js";
 import { aniwatchPort, baseURL } from "../../server.js";
 import { doesMatch } from "../../utils/utils.js";
 import HiAnimeParser from "./hiAnimeParser.js";
