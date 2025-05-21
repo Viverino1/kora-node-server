@@ -137,7 +137,7 @@ export class Prisma {
       ...(limit !== undefined ? { take: limit } : {}),
     });
 
-    const history: Kora.History[] = userHistory.map((e) => ({
+    const history: Kora.History[] = userHistory.map((e: any) => ({
       ...e,
       epnum: parseInt(e.epnum),
       lastUpdated: e.lastUpdated.toISOString(),
