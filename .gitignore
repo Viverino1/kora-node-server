@@ -139,5 +139,4 @@ node_modules
 
 src/lib
 package-lock.json
-dev.db
 migrations
