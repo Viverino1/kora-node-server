@@ -12,11 +12,8 @@ router.get("/anime", async (_req: Request, res: Response) => {
 
 router.get("/anime/:id", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { id } = _req.params;
-  const anime = await Composer.getAnime(id); // Don't pass options at all
+  const anime = await Composer.getAnime(id, userId?? undefined); // Don't pass options at all
   return res.json(anime);
 });
 
