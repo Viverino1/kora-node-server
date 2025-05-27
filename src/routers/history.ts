@@ -62,7 +62,7 @@ router.get("/history/recent", async (_req: Request, res: Response) => {
   try {
     const limitStr = _req.query.limit as string | undefined;
     const limit = limitStr && limitStr != "undefined" ? Number(limitStr) : undefined;
-    const data = await Prisma.getRecentlyWatchedAnime(userId, limit);
+    const data = await Prisma.getRecentHistory(userId, limit);
     return res.json(data);
   } catch {
     return res.status(500).json({

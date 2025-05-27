@@ -26,9 +26,9 @@ router.get("/anime/:id/:epnum", async (_req: Request, res: Response) => {
 
   const source = await Composer.getSource(userId, id, Number(epnum));
 
-  const history = userId && (await Prisma.getHistory(userId, id, Number(epnum)));
+  console.log(`Got source: ${source?.streamUrl}`);
 
-  return res.json({ source, history });
+  return res.json(source);
 });
 
 export default router;

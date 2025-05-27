@@ -1,3 +1,4 @@
+import { baseURL, port } from "../server.js";
 import { HiAnime } from "../services/hianime/hianime.js";
 import { Jikan } from "../services/jikan.js";
 import { Kora } from "../types/api.js";
@@ -6,23 +7,27 @@ import AnimePahe from "./AnimePahe.js";
 import { Prisma } from "./Prisma.js";
 
 export default class Composer {
-  public static async getAnime(id: string | AnimePahe.AnimeID, uid?: string, history?: Kora.History, useCache: boolean = true) {
-    if (typeof id === "string") {
-      id = (await Prisma.client.animeID.findUnique({
-        where: {
-          id,
-        },
-      })) as AnimePahe.AnimeID;
+  public static async getAnime(id: string | AnimePahe.AnimeID, uid?: string, useCache: boolean = true) {
+    try {
+      if (typeof id === "string") {
+        id = (await Prisma.client.animeID.findUnique({
+          where: {
+            id,
+          },
+        })) as AnimePahe.AnimeID;
+      }
+
+      const options: Prisma.CacheOptions = Prisma.defaultCacheOptions;
+      options.useCache = useCache;
+      options.animeID = id.id;
+
+      return this._getAnime(id, uid, options);
+    } catch {
+      return null;
     }
-
-    const options: Prisma.CacheOptions = Prisma.defaultCacheOptions;
-    options.useCache = useCache;
-    options.animeID = id.id;
-
-    return this._getAnime(id, uid, options, history);
   }
 
-  private static async _getAnime(id: AnimePahe.AnimeID, uid?: string, options = Prisma.defaultCacheOptions, history?: Kora.History) {
+  private static async _getAnime(id: AnimePahe.AnimeID, uid?: string, options = Prisma.defaultCacheOptions) {
     const startTime = performance.now();
     try {
       const [pahe, jikan, hiAnimeId] = await Promise.all([AnimePahe.getAnime(id, options), Jikan.getAnimeFromTitle(id.title, options), HiAnime.getIdFromTitle(id.title, options)]);
@@ -44,11 +49,20 @@ export default class Composer {
             thumbnail: proxyUrl(e.thumbnail),
             duration: e.duration,
             isFiller: hiAnimeEpisode?.isFiller ?? null,
+            history: null,
           };
           return ep;
         })
         .filter((ep) => ep !== null)
         .sort((a, b) => a.number - b.number);
+
+      const episodesWithHistory = uid ? await Prisma.addHistory(uid, id.id, episodes) : null;
+
+      const history =
+        episodesWithHistory
+          ?.slice()
+          .reverse()
+          .find((ep) => ep.history !== null)?.history ?? null;
 
       const poster = pahe.poster ?? jikan?.images.jpg.large_image_url ?? hiAnime?.poster ?? null;
 
@@ -67,7 +81,7 @@ export default class Composer {
           thumbnail: jikan?.trailer.images?.maximum_image_url ?? null,
           url: jikan?.trailer.url ?? null,
         },
-        episodes,
+        episodes: episodes,
         info: {
           titles: {
             english: jikan?.title_english ?? pahe.title,
@@ -129,6 +143,7 @@ export default class Composer {
     const source: Kora.Source = {
       ...ep,
       ...pahe,
+      proxiedStreamUrl: `${baseURL}:${port}/proxy?url=${encodeURIComponent(pahe.streamUrl)}`,
       intro: {
         start: hiAnime?.introStart ?? null,
         end: hiAnime?.introEnd ?? null,
