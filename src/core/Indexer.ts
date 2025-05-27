@@ -1,4 +1,5 @@
 import PQueue from "p-queue";
+import { HiAnime } from "../services/hianime/hianime.js";
 import AnimePahe from "./AnimePahe.js";
 import Composer from "./Composer.js";
 
@@ -6,7 +7,7 @@ export class Indexer {
   public static queue = new PQueue({ concurrency: 1 });
   private static _busy = false;
   static async initialize() {
-    // await this._update();
+    //await this._update();
     // setInterval(async () => {
     //   if (this._busy) return;
     //   await this._update();
@@ -25,7 +26,7 @@ export class Indexer {
       const newAnimes = remote.filter((a) => !cacheIds.has(a.id));
       console.log(`Found ${newAnimes.length} new animes on home page: ${newAnimes.map((a) => a.title).join("\n ")}`);
       newAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, undefined, false));
       });
     }
 
@@ -33,15 +34,20 @@ export class Indexer {
     if (updates) {
       console.log(`Found ${updates.updatedAnimes.length + updates.createdAnimes.length} animes to update: ${[...updates.updatedAnimes, ...updates.createdAnimes].map((a) => a.title).join("\n ")}`);
       updates?.createdAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, undefined, false));
       });
       updates?.updatedAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, undefined, false));
       });
       updates?.deletedAnimes.forEach((a: AnimePahe.AnimeID) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, undefined, false));
       });
     }
+
+    const hiAnimeHome = await HiAnime.getHome({
+      animeID: null,
+      useCache: false,
+    });
   }
 
   public static async seed() {

@@ -1,21 +1,36 @@
 import { Request, Response, Router } from "express";
 import AnimePahe from "../core/AnimePahe.js";
-import Composer from "../core/Composer.js";
 import { Prisma } from "../core/Prisma.js";
 import ClerkService from "../services/clerk.js";
+import { HiAnime } from "../services/hianime/hianime.js";
+import { Kora } from "../types/api.js";
+import { encodeStringToId } from "../utils/utils.js";
 const router = Router();
 
 router.get("/home", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
-  // if (!userId) {
-  //   return res.status(401).json({ message: "Unauthorized" });
-  // }
-  const data = await AnimePahe.getHome();
 
-  const homePageAnime = await Promise.all(data?.map((anime) => Composer.getAnime(anime)) || []);
-  const recentlyWatched = !userId ? [] : await Prisma.getRecentlyWatchedAnime(userId, 5);
+  const recent = (await AnimePahe.getHome())?.map((a) => a.id) ?? null;
+  const history = userId ? (await Prisma.getRecentHistory(userId, 10)).map((e) => e.animeId) : null;
 
-  return res.json([...recentlyWatched, ...homePageAnime]);
+  const hiAnimeHome = await HiAnime.getHome();
+  const parse = (data: string[] | undefined) => {
+    if (!data) return null;
+    return Prisma.findValidIds(data.map((id) => encodeStringToId(id)));
+  };
+  const spotlight = parse(hiAnimeHome?.spotlightAnimes);
+  const trending = parse(hiAnimeHome?.top10Animes.month);
+  const popular = parse(hiAnimeHome?.mostPopularAnimes);
+
+  const response: Kora.Home = {
+    continueWatching: history,
+    recent,
+    spotlight,
+    trending,
+    popular,
+  };
+
+  res.json(response);
 });
 
 export default router;

@@ -15,9 +15,11 @@ export namespace Kora {
     thumbnail: string | null;
     duration: number | null;
     isFiller: boolean | null;
+    history: History | null;
   }
   export interface Source extends Episode {
     streamUrl: string;
+    proxiedStreamUrl: string;
     referer: string | null;
     source: string;
     resolution: number | null;
@@ -87,5 +89,13 @@ export namespace Kora {
       };
       genres: string[];
     };
+  }
+
+  export interface Home {
+    continueWatching: string[] | null;
+    recent: string[] | null;
+    spotlight: string[] | null;
+    trending: string[] | null;
+    popular: string[] | null;
   }
 }

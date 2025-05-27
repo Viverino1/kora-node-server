@@ -1,7 +1,6 @@
 import { PrismaClient, Source } from "../../dist/lib/prisma/client.js";
 import { Kora } from "../types/api.js";
 import { AnimePahe } from "./AnimePahe.js";
-import Composer from "./Composer.js";
 
 export class Prisma {
   static _client: PrismaClient | null = null;
@@ -10,6 +9,11 @@ export class Prisma {
       this._client = new PrismaClient();
     }
     return this._client;
+  }
+  static _ids = new Set<string>();
+
+  public static async initialize() {
+    await this._updateLocalIds();
   }
 
   static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options = this.defaultCacheOptions): Promise<T | null> {
@@ -58,6 +62,7 @@ export class Prisma {
         session: anime.session,
       },
     });
+    this._updateLocalIds();
   }
 
   public static async clearRelatedCache(id: string) {
@@ -66,18 +71,22 @@ export class Prisma {
         animeID: id,
       },
     });
+    this._updateLocalIds();
   }
 
-  public static async getAnimeID(id: string) {
-    return (await Prisma.client.animeID.findUnique({
-      where: {
-        id,
-      },
-    })) as AnimePahe.AnimeID | null;
+  public static findValidIds(ids: string[]) {
+    return ids.filter((id) => this._ids.has(id));
   }
 
   public static async getAllAnimeIDs() {
-    return (await Prisma.client.animeID.findMany()) as AnimePahe.AnimeID[];
+    return this._ids;
+  }
+
+  private static async _updateLocalIds() {
+    const ids = await Prisma.client.animeID.findMany();
+    const sorted = ids.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()) as AnimePahe.AnimeID[];
+    this._ids = new Set(sorted.map((e) => e.id));
+    return sorted;
   }
 
   public static async setHistory(uid: string, animeId: string, epnum: number, timestamp: number) {
@@ -102,7 +111,7 @@ export class Prisma {
     });
   }
 
-  public static async getHistory(uid: string, animeId: string, epnum: number) {
+  public static async getEpisodeHistory(uid: string, animeId: string, epnum: number) {
     const dbhis = await Prisma.client.history.findUnique({
       where: {
         uid_epnum_animeId: {
@@ -125,7 +134,33 @@ export class Prisma {
     return history;
   }
 
-  public static async getRecentlyWatchedAnime(uid: string, limit?: number) {
+  public static async addHistory(uid: string, animeId: string, episodes: Kora.Episode[]) {
+    const history = await Prisma.client.history.findMany({
+      where: {
+        uid,
+        animeId,
+      },
+    });
+
+    const episodesWithHistory = history
+      .map((e) => {
+        const ep = episodes.find((ep) => ep.number === parseInt(e.epnum));
+        if (ep) {
+          ep.history = {
+            ...e,
+            epnum: parseInt(e.epnum),
+            lastUpdated: e.lastUpdated.toISOString(),
+            firstUpdated: e.firstUpdated?.toISOString(),
+          };
+        }
+        return ep;
+      })
+      .filter((ep) => ep !== undefined);
+
+    return episodesWithHistory;
+  }
+
+  public static async getRecentHistory(uid: string, limit?: number) {
     const userHistory = await Prisma.client.history.findMany({
       where: {
         uid,
@@ -144,9 +179,7 @@ export class Prisma {
       firstUpdated: e.firstUpdated?.toISOString(),
     }));
 
-    const anime = (await Promise.all(history.map(async (h) => await Composer.getAnime(h.animeId, uid, h)))).filter((a) => a !== null);
-
-    return anime;
+    return history;
   }
 }
 

@@ -74,6 +74,19 @@ export class HiAnime {
     const data = await Prisma.cache(route, Source.HIANIME, this._getSource, options);
     return data;
   }
+
+  private static async _getHome() {
+    const res = await HiAnime.queue.add(() => axios.get(HiAnime.url + "/home"));
+    if (!res || !res.data || !res.data.data) return null;
+    const parsedRes = HiAnimeParser.home(res.data.data);
+    return parsedRes;
+  }
+
+  public static async getHome(options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
+    const route = `/home`;
+    const data = await Prisma.cache(route, Source.HIANIME, this._getHome, options);
+    return data;
+  }
 }
 
 export namespace HiAnime {
@@ -143,5 +156,21 @@ export namespace HiAnime {
     outroStart: number | null;
     outroEnd: number | null;
     subs: string | null;
+  }
+
+  export interface Home {
+    spotlightAnimes: string[];
+    trendingAnimes: string[];
+    latestEpisodeAnimes: string[];
+    topUpcomingAnimes: string[];
+    top10Animes: {
+      today: string[];
+      week: string[];
+      month: string[];
+    };
+    topAiringAnimes: string[];
+    mostPopularAnimes: string[];
+    mostFavoriteAnimes: string[];
+    latestCompletedAnimes: string[];
   }
 }

@@ -106,4 +106,25 @@ export default class HiAnimeParser {
 
     return sourceResponse;
   }
+
+  public static async home(scrapedData: HiAnimeTypes.ScrapedHomePage): Promise<HiAnime.Home> {
+    const { spotlightAnimes, trendingAnimes, latestEpisodeAnimes, topUpcomingAnimes, top10Animes, topAiringAnimes, mostPopularAnimes, mostFavoriteAnimes, latestCompletedAnimes } = scrapedData;
+    const response: HiAnime.Home = {
+      spotlightAnimes: spotlightAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      trendingAnimes: trendingAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      latestEpisodeAnimes: latestEpisodeAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      topUpcomingAnimes: topUpcomingAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      top10Animes: {
+        today: top10Animes.today.map((anime) => anime.name).filter((name) => name !== null),
+        week: top10Animes.week.map((anime) => anime.name).filter((name) => name !== null),
+        month: top10Animes.month.map((anime) => anime.name).filter((name) => name !== null),
+      },
+      topAiringAnimes: topAiringAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      mostPopularAnimes: mostPopularAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      mostFavoriteAnimes: mostFavoriteAnimes.map((anime) => anime.name).filter((name) => name !== null),
+      latestCompletedAnimes: latestCompletedAnimes.map((anime) => anime.name).filter((name) => name !== null),
+    };
+
+    return response; // TODO: implemen
+  }
 }
