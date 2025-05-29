@@ -23,11 +23,7 @@ router.get("/anime/:id/:epnum", async (_req: Request, res: Response) => {
   //   return res.status(401).json({ message: "Unauthorized" });
   // }
   const { id, epnum } = _req.params;
-
   const source = await Composer.getSource(userId, id, Number(epnum));
-
-  console.log(`Got source: ${source?.streamUrl}`);
-
   return res.json(source);
 });
 

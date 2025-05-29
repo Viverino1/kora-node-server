@@ -27,6 +27,7 @@ export class Prisma {
     try {
       data = (await fetchFn(route)) as any;
     } catch (e) {}
+    if (!data) return null;
     await Prisma.client.cachedResponse.upsert({
       where: {
         route,
