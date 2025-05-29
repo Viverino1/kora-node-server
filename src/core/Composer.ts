@@ -131,37 +131,46 @@ export default class Composer {
     }
   }
 
-  public static async getSource(uid: string | null, id: string, epnum: number) {
-    const anime = await Composer.getAnime(id, undefined);
-    const ep = anime?.episodes[epnum - 1];
+  public static async getSource(uid: string | null, id: string | Kora.Anime, epnum: number) {
+    const startTime = performance.now();
+    const anime = typeof id == "string" ? await Composer.getAnime(id, undefined) : id;
+    try {
+      const ep = anime?.episodes[epnum - 1];
 
-    if (!anime || !ep) return null;
+      if (!anime || !ep) return null;
 
-    const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime!.id, anime?.session, epnum, ep?.session), HiAnime.getSource(ep.hiAnimeEpisodeId)]);
+      const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime!.id, anime?.session, epnum, ep?.session), HiAnime.getSource(ep.hiAnimeEpisodeId)]);
 
-    if (!pahe) return null;
-    const source: Kora.Source = {
-      ...ep,
-      ...pahe,
-      proxiedStreamUrl: `${baseURL}:${port}/proxy?url=${encodeURIComponent(pahe.streamUrl)}`,
-      intro: {
-        start: hiAnime?.introStart ?? null,
-        end: hiAnime?.introEnd ?? null,
-      },
-      outro: {
-        start: hiAnime?.outroStart ?? null,
-        end: hiAnime?.outroEnd ?? null,
-      },
-      backup:
-        hiAnime?.url && hiAnime?.referer && hiAnime?.subs
-          ? {
-              url: hiAnime?.url,
-              referer: hiAnime?.referer,
-              subs: hiAnime?.subs,
-            }
-          : null,
-    };
+      if (!pahe) return null;
+      const source: Kora.Source = {
+        ...ep,
+        ...pahe,
+        proxiedStreamUrl: `${baseURL}:${port}/proxy?url=${encodeURIComponent(pahe.streamUrl)}`,
+        intro: {
+          start: hiAnime?.introStart ?? null,
+          end: hiAnime?.introEnd ?? null,
+        },
+        outro: {
+          start: hiAnime?.outroStart ?? null,
+          end: hiAnime?.outroEnd ?? null,
+        },
+        backup:
+          hiAnime?.url && hiAnime?.referer && hiAnime?.subs
+            ? {
+                url: hiAnime?.url,
+                referer: hiAnime?.referer,
+                subs: hiAnime?.subs,
+              }
+            : null,
+      };
 
-    return source;
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}ms ${anime.title} EP: ${epnum}`);
+      return source;
+    } catch {
+      console.log(`\x1b[31m[X] GET ${anime?.title + "EP: ${epnum}"}\x1b[0m `);
+      return null;
+    }
   }
 }

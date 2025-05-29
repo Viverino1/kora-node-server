@@ -34,13 +34,10 @@ app.use(proxy);
 app.listen(port);
 
 serve({ fetch: hianime.fetch });
-console.log(`Main server is running on port ${port}`);
 
 await Puppeteer.initialize();
-console.log("Puppeteer is initialized");
 await AnimePahe.initialize();
-console.log("AnimePahe is initialized");
 await Prisma.initialize();
-console.log("Prisma is initialized");
 await Indexer.initialize();
-console.log("Indexer is initialized");
+
+console.log(`Main server is running on port ${port}`);

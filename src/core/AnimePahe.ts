@@ -145,7 +145,6 @@ class AnimePahe {
     let episodes: AnimePahe.Episode[] = [];
 
     for (let i = 1; i <= maxPages; i++) {
-      console.log(`Getting page ${i} of ${maxPages}...`);
       const r = i == 0 ? res : await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}?page=${i}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
       if (!r || !r.content) {
         return;
@@ -174,12 +173,10 @@ class AnimePahe {
       });
 
       if (eps.length === 0) {
-        console.log(`No episodes found on page ${i} of ${maxPages}`);
         return;
       }
 
       episodes = episodes.concat(eps);
-      console.log(`Got ${eps.length}. Total: ${episodes.length}`);
     }
 
     episodes = episodes.sort((a, b) => a.number - b.number);
