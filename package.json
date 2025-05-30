@@ -26,6 +26,7 @@
     "express": "^5.1.0",
     "http-proxy-middleware": "^3.0.5",
     "jsdom": "^26.1.0",
+    "node-gyp": "^11.2.0",
     "p-queue": "^8.1.0",
     "puppeteer": "^24.8.1"
   },
