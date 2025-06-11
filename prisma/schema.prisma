@@ -15,6 +15,7 @@ enum Source {
   HIANIME
   JIKAN
   ANIMEPAHE
+  COMPOSER
 }
 
 model CachedResponse {

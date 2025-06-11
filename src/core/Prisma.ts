@@ -19,6 +19,7 @@ export class Prisma {
   static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options = this.defaultCacheOptions): Promise<T | null> {
     if (options.useCache) {
       const cached = await Prisma.client.cachedResponse.findUnique({ where: { route, source } });
+
       if (cached) {
         return (cached.data as any).json as T;
       }
@@ -27,7 +28,7 @@ export class Prisma {
     try {
       data = (await fetchFn(route)) as any;
     } catch (e) {}
-    if (!data) return null;
+    if (!data && source == Source.ANIMEPAHE) return null;
     await Prisma.client.cachedResponse.upsert({
       where: {
         route,
@@ -36,6 +37,7 @@ export class Prisma {
       update: {
         data: { json: data },
         lastUpdated: new Date(),
+        animeID: options.animeID,
       },
       create: {
         route,
@@ -129,36 +131,9 @@ export class Prisma {
       ...dbhis,
       epnum: parseInt(dbhis.epnum),
       lastUpdated: dbhis.lastUpdated.toISOString(),
-      firstUpdated: dbhis.firstUpdated?.toISOString(),
     };
 
     return history;
-  }
-
-  public static async addHistory(uid: string, animeId: string, episodes: Kora.Episode[]) {
-    const history = await Prisma.client.history.findMany({
-      where: {
-        uid,
-        animeId,
-      },
-    });
-
-    const episodesWithHistory = history
-      .map((e) => {
-        const ep = episodes.find((ep) => ep.number === parseInt(e.epnum));
-        if (ep) {
-          ep.history = {
-            ...e,
-            epnum: parseInt(e.epnum),
-            lastUpdated: e.lastUpdated.toISOString(),
-            firstUpdated: e.firstUpdated?.toISOString(),
-          };
-        }
-        return ep;
-      })
-      .filter((ep) => ep !== undefined);
-
-    return episodesWithHistory;
   }
 
   public static async getRecentHistory(uid: string, limit?: number) {
@@ -177,7 +152,6 @@ export class Prisma {
       ...e,
       epnum: parseInt(e.epnum),
       lastUpdated: e.lastUpdated.toISOString(),
-      firstUpdated: e.firstUpdated?.toISOString(),
     }));
 
     return history;

@@ -36,43 +36,34 @@ export default class Composer {
       if (!pahe || !pahe.title) return null;
 
       const episodes = pahe.episodes
-        .map((e) => {
+        .map((e, i) => {
           const hiAnimeEpisode = hiAnimeEpisodes && hiAnimeEpisodes.find ? hiAnimeEpisodes?.find((e2) => e2.number === e.number) : null;
           if (!e.session) {
             return null;
           }
           const ep: Kora.Episode = {
-            number: e.number,
+            numberInShow: e.number,
+            number: i + 1,
             session: e.session,
             hiAnimeEpisodeId: hiAnimeEpisode?.id ?? null,
             title: hiAnimeEpisode?.title ?? `Episode ${e.number}`,
             thumbnail: proxyUrl(e.thumbnail),
             duration: e.duration,
             isFiller: hiAnimeEpisode?.isFiller ?? null,
-            history: null,
           };
           return ep;
         })
         .filter((ep) => ep !== null)
         .sort((a, b) => a.number - b.number);
 
-      const episodesWithHistory = uid ? await Prisma.addHistory(uid, id.id, episodes) : null;
-
-      const history =
-        episodesWithHistory
-          ?.slice()
-          .reverse()
-          .find((ep) => ep.history !== null)?.history ?? null;
-
       const poster = pahe.poster ?? jikan?.images.jpg.large_image_url ?? hiAnime?.poster ?? null;
 
       const anime: Kora.Anime | null = {
         id: id.id,
         session: id.session,
+        anilistId: hiAnime?.anilistId ?? null,
         hiAnimeId,
         malId: jikan?.mal_id ?? hiAnime?.malId ?? null,
-        anilistId: hiAnime?.anilistId ?? null,
-        history: history ?? null,
         title: pahe.title,
         description: pahe.synopsis ?? jikan?.synopsis ?? hiAnime?.description ?? null,
         poster: proxyUrl(poster),
@@ -121,9 +112,9 @@ export default class Composer {
       };
 
       const endTime = performance.now();
-      const duration = endTime - startTime;
+      const duration = (endTime - startTime) / 1000;
 
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}ms ${id.title}`);
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
       return anime;
     } catch (error) {
       console.log(`\x1b[31m[X] GET ${id.title}\x1b[0m `);
@@ -165,12 +156,27 @@ export default class Composer {
       };
 
       const endTime = performance.now();
-      const duration = endTime - startTime;
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}ms ${anime.title} EP: ${epnum}`);
+      const duration = (endTime - startTime) / 1000;
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${epnum}`);
       return source;
     } catch {
       console.log(`\x1b[31m[X] GET ${anime?.title + "EP: ${epnum}"}\x1b[0m `);
       return null;
     }
+  }
+
+  private static async _getAllAnime() {
+    const all = await Prisma.getAllAnimeIDs();
+    const animes = new Set<Kora.Anime>();
+    for (const id of all.keys()) {
+      const anime = await Composer.getAnime(id);
+      anime && animes.add(anime);
+    }
+    const arr = Array.from(animes);
+    return arr;
+  }
+
+  public static async getAllAnime(options = Prisma.defaultCacheOptions) {
+    return await Prisma.cache("allAnime", "COMPOSER", this._getAllAnime, options);
   }
 }

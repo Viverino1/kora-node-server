@@ -1,7 +1,7 @@
-import { serve } from "@hono/node-server";
+//import { serve } from "@hono/node-server";
 import cors from "cors";
 import express from "express";
-import hianime from "../external/hianime/dist/src/server.js";
+//import hianime from "../external/hianime/dist/src/server.js";
 import AnimePahe from "./core/AnimePahe.js";
 import { Indexer } from "./core/Indexer.js";
 import { Prisma } from "./core/Prisma.js";
@@ -31,9 +31,16 @@ app.use(home);
 app.use(history);
 app.use(proxy);
 
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
 app.listen(port);
 
-serve({ fetch: hianime.fetch });
+//serve({ fetch: hianime.fetch });
 
 await Puppeteer.initialize();
 await AnimePahe.initialize();

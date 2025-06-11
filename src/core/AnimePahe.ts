@@ -7,7 +7,7 @@ import { Prisma } from "./Prisma.js";
 import Puppeteer from "./Puppeteer.js";
 
 class AnimePahe {
-  public static queue = new PQueue({ interval: 1000, intervalCap: 1 });
+  public static queue = new PQueue({ concurrency: 1 });
 
   public static get url() {
     return animePaheBaseURL;
@@ -269,6 +269,7 @@ class AnimePahe {
   }
 
   public static async getAnime(id: AnimePahe.AnimeID, options = Prisma.defaultCacheOptions) {
+    options.animeID = id.id;
     const data = Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, () => this._getAnime(id.session), options);
     return data;
   }
@@ -314,10 +315,13 @@ class AnimePahe {
       source: stream.text,
       resolution: stream.resolution,
     };
+
+    console.log(`Got source: ${source.streamUrl}`);
     return source;
   }
 
   public static async getSource(id: string, aSesh: string, epnum: number, eSesh: string, options = Prisma.defaultCacheOptions) {
+    options.animeID = id;
     const data = Prisma.cache(`/play/${id}/${epnum}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
     return data;
   }

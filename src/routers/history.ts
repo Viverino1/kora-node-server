@@ -12,6 +12,15 @@ router.post("/history", async (_req: Request, res: Response) => {
   try {
     const { animeId, epnum, timestamp } = _req.body;
 
+    if (!animeId || !epnum || !timestamp) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: animeId, epnum, and timestamp",
+      });
+    }
+
+    console.log(`Creating history entry for user ${userId}, animeId ${animeId}, epnum ${epnum}, timestamp ${timestamp}`);
+
     await Prisma.setHistory(userId, animeId, epnum, timestamp);
 
     return res.status(201).json({
@@ -43,7 +52,7 @@ router.get("/history", async (_req: Request, res: Response) => {
       });
     }
 
-    const history = await Prisma.getHistory(userId, animeId, Number(epnum));
+    const history = await Prisma.getEpisodeHistory(userId, animeId, Number(epnum));
 
     return res.status(200).json(history);
   } catch (error) {

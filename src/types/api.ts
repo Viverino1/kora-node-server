@@ -1,21 +1,19 @@
 export namespace Kora {
   export interface History {
     lastUpdated: string;
-    uid: string;
     epnum: number;
     animeId: string;
-    firstUpdated: string;
     lastTimeStamp: number;
   }
   export interface Episode {
     number: number;
+    numberInShow: number;
     session: string;
     hiAnimeEpisodeId: string | null;
     title: string | null;
     thumbnail: string | null;
     duration: number | null;
     isFiller: boolean | null;
-    history: History | null;
   }
   export interface Source extends Episode {
     streamUrl: string;
@@ -43,7 +41,6 @@ export namespace Kora {
     hiAnimeId: string | null;
     malId: number | null;
     anilistId: number | null;
-    history: History | null;
     title: string | null;
     description: string | null;
     poster: string | null;
