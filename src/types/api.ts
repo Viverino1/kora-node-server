@@ -89,10 +89,11 @@ export namespace Kora {
   }
 
   export interface Home {
-    continueWatching: string[] | null;
-    recent: string[] | null;
-    spotlight: string[] | null;
-    trending: string[] | null;
-    popular: string[] | null;
+    continueWatching: string[];
+    recent: string[];
+    spotlight: string[];
+    trending: string[];
+    popular: string[];
+    continueWatchingHistory?: History[];
   }
 }

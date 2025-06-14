@@ -141,3 +141,5 @@ src/lib
 package-lock.json
 migrations
 /prisma/generated
+
+.DS_Store

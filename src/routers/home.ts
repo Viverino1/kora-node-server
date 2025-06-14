@@ -11,7 +11,8 @@ router.get("/home", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
 
   const recent = (await AnimePahe.getHome())?.map((a) => a.id) ?? null;
-  const history = userId ? (await Prisma.getRecentHistory(userId, 10)).map((e) => e.animeId) : null;
+  const continueWatchingHistory = userId ? await Prisma.getRecentHistory(userId, 10) : [];
+  const history = userId ? continueWatchingHistory.map((e) => e.animeId) : null;
 
   const hiAnimeHome = await HiAnime.getHome();
   const parse = (data: string[] | undefined) => {
@@ -23,11 +24,12 @@ router.get("/home", async (_req: Request, res: Response) => {
   const popular = parse(hiAnimeHome?.mostPopularAnimes);
 
   const response: Kora.Home = {
-    continueWatching: history,
-    recent,
-    spotlight,
-    trending,
-    popular,
+    continueWatching: history ?? [],
+    recent: recent ?? [],
+    spotlight: spotlight ?? [],
+    trending: trending ?? [],
+    popular: popular ?? [],
+    continueWatchingHistory
   };
 
   res.json(response);
