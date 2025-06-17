@@ -46,10 +46,21 @@ export class Prisma {
       }
     }
     let data = null;
-    try {
-      data = (await fetchFn(route)) as any;
-    } catch (e) {}
-    if (!data && source == Source.ANIMEPAHE) return null;
+    let attempts = 0;
+    while (attempts < 3 && data === null) {
+      try {
+        data = (await fetchFn(route)) as any;
+        break;
+      } catch (e) {
+        attempts++;
+        if (attempts === 2 || attempts === 3) {
+          console.log(`Fetch attempt ${attempts} for route "${route}" failed.`, e);
+        }
+        if (attempts >= 3) {
+          break;
+        }
+      }
+    }
     await Prisma.client.cachedResponse.upsert({
       where: {
         route,
@@ -114,18 +125,18 @@ export class Prisma {
 
   private static async _updateLocalIds() {
     const ids = await Prisma.client.animeID.findMany();
-    const sorted = ids.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()) as AnimePahe.AnimeID[];
+    const sorted = ids.sort((a, b) => a.title.localeCompare(b.title)) as AnimePahe.AnimeID[];
     this._ids = new Set(sorted.map((e) => e.id));
     return sorted;
   }
 
-  public static async setHistory(uid: string, animeId: string, epnum: number, timestamp: number, duration: number) {
+  public static async setHistory(uid: string, animeId: string, epid: string, timestamp: number, duration: number) {
     await Prisma.client.history.upsert({
       where: {
-        uid_epnum_animeId: {
+        uid_epid_animeId: {
           uid,
           animeId,
-          epnum: epnum.toString(),
+          epid,
         },
       },
       update: {
@@ -136,20 +147,20 @@ export class Prisma {
       create: {
         uid,
         animeId,
-        epnum: epnum.toString(),
+        epid,
         lastTimeStamp: timestamp,
         duration: duration,
       },
     });
   }
 
-  public static async getEpisodeHistory(uid: string, animeId: string, epnum: number) {
+  public static async getEpisodeHistory(uid: string, animeId: string, epid: string) {
     const dbhis = await Prisma.client.history.findUnique({
       where: {
-        uid_epnum_animeId: {
+        uid_epid_animeId: {
           uid,
           animeId,
-          epnum: epnum.toString(),
+          epid,
         },
       },
     });
@@ -158,7 +169,6 @@ export class Prisma {
 
     const history: Kora.History = {
       ...dbhis,
-      epnum: parseInt(dbhis.epnum),
       lastUpdated: dbhis.lastUpdated.toISOString(),
     };
 
@@ -176,9 +186,8 @@ export class Prisma {
       ...(limit !== undefined ? { take: limit } : {}),
     });
 
-    const history: Kora.History[] = userHistory.map((e: any) => ({
+    const history: Kora.History[] = userHistory.map((e) => ({
       ...e,
-      epnum: parseInt(e.epnum),
       lastUpdated: e.lastUpdated.toISOString(),
     }));
 

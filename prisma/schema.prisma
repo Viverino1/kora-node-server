@@ -35,10 +35,10 @@ model AnimeID {
 
 model History {
   uid           String
-  epnum         String
+  epid          String
   animeId       String
   lastUpdated   DateTime @default(now())
   lastTimeStamp Int
   duration      Int
-  @@id([uid, epnum, animeId])
+  @@id([uid, epid, animeId])
 }

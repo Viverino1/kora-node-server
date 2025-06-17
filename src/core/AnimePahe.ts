@@ -238,12 +238,12 @@ class AnimePahe {
         const href = episode.querySelector("div.episode-snapshot a")?.getAttribute("href") || null;
         const session = href ? href?.split("/")?.pop() ?? null : null;
 
-        const epNumStr = episode.querySelector("div.episode-number")?.textContent?.toLocaleLowerCase().replace("episode", "").trim() ?? null;
+        const episodeNumberString = episode.querySelector("div.episode-number")?.textContent?.toLocaleLowerCase().replace("episode", "").trim() ?? null;
 
         const ep: AnimePahe.Episode = {
           session,
           thumbnail,
-          number: epNumStr ?? "",
+          number: episodeNumberString ?? "",
           duration,
         };
 
@@ -338,9 +338,9 @@ class AnimePahe {
     return source;
   }
 
-  public static async getSource(id: string, aSesh: string, epnum: number, eSesh: string, options = Prisma.defaultCacheOptions) {
+  public static async getSource(id: string, aSesh: string, epid: string, eSesh: string, options = Prisma.defaultCacheOptions) {
     options.animeID = id;
-    const data = await Prisma.cache(`/play/${id}/${epnum}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
+    const data = await Prisma.cache(`/play/${id}/${epid}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
     return data?.data ?? null;
   }
 }

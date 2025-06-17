@@ -42,12 +42,12 @@ export default class Composer {
           if (!e || !e.session) {
             return null;
           }
-          const epNum = parseInt(e?.number) - epOffset;
-          const hiAnimeEpisode = hiAnimeEpisodes?.data?.find((e2) => e2.number === epNum);
+          const episodeNumber = parseInt(e?.number) - epOffset;
+          const hiAnimeEpisode = hiAnimeEpisodes?.data?.find((e2) => e2.number === episodeNumber);
           const ep: Kora.Episode = {
             id: encodeStringToId(e.number),
             epStr: e.number,
-            num: epNum,
+            num: episodeNumber,
             session: e.session,
             hiAnimeEpisodeId: hiAnimeEpisode?.id ?? null,
             title: hiAnimeEpisode?.title ?? `Episode ${e.number}`,
@@ -136,15 +136,15 @@ export default class Composer {
     }
   }
 
-  public static async getSource(uid: string | null, id: string | Kora.Anime, epnum: number) {
+  public static async getSource(uid: string | null, id: string | Kora.Anime, epid: string) {
     const startTime = performance.now();
     const anime = typeof id == "string" ? (await Composer.getAnime(id))?.data ?? null : id;
     try {
-      const ep = anime?.episodes[epnum - 1];
+      const ep = anime?.episodes.find((e) => e.id == epid);
 
       if (!anime || !ep) return null;
 
-      const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime!.id, anime?.session, epnum, ep?.session), HiAnime.getSource(ep.hiAnimeEpisodeId)]);
+      const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime!.id, anime?.session, epid, ep?.session), HiAnime.getSource(ep.hiAnimeEpisodeId)]);
 
       if (!pahe) return null;
       const source: Kora.Source = {
@@ -171,15 +171,15 @@ export default class Composer {
 
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${epnum}`);
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
       return source;
     } catch {
-      console.log(`\x1b[31m[X] GET ${anime?.title + "EP: ${epnum}"}\x1b[0m `);
+      console.log(`\x1b[31m[X] GET ${anime?.title + `EP: ${epid}`}\x1b[0m `);
       return null;
     }
   }
 
-  private static async _getAllAnime() {
+  public static async getAllAnime() {
     const all = await Prisma.getAllAnimeIDs();
     const animes = new Set<Kora.Anime>();
     for (const id of all.keys()) {
@@ -188,9 +188,5 @@ export default class Composer {
     }
     const arr = Array.from(animes);
     return arr;
-  }
-
-  public static async getAllAnime(options = Prisma.defaultCacheOptions) {
-    return (await Prisma.cache("allAnime", "COMPOSER", this._getAllAnime, options))?.data;
   }
 }

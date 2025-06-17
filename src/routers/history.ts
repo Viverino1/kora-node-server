@@ -10,18 +10,18 @@ router.post("/history", async (_req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   try {
-    const { animeId, epnum, timestamp, duration } = _req.body;
+    const { animeId, epid, timestamp, duration } = _req.body;
 
-    if (!animeId || !epnum || !timestamp || !duration) {
+    if (!animeId || !epid || !timestamp || !duration) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: animeId, epnum, timestamp, and duration",
+        message: "Missing required fields: animeId, epid, timestamp, and duration",
       });
     }
 
-    console.log(`Creating history entry for user ${userId}, animeId ${animeId}, epnum ${epnum}, timestamp ${timestamp}`);
+    console.log(`Creating history entry for user ${userId}, animeId ${animeId}, epid ${epid}, timestamp ${timestamp}`);
 
-    await Prisma.setHistory(userId, animeId, epnum, timestamp, duration);
+    await Prisma.setHistory(userId, animeId, epid, timestamp, duration);
 
     return res.status(201).json({
       success: true,
@@ -43,9 +43,9 @@ router.get("/history", async (_req: Request, res: Response) => {
 
   try {
     const animeId = _req.query.animeid as string;
-    const epnum = _req.query.epnum as string;
+    const epid = _req.query.epid as string;
 
-    if (!animeId || !epnum) {
+    if (!animeId || !epid) {
       try {
         const data = await Prisma.getHistory(userId);
         return res.json(data);
@@ -57,7 +57,7 @@ router.get("/history", async (_req: Request, res: Response) => {
       }
     }
 
-    const history = await Prisma.getEpisodeHistory(userId, animeId, Number(epnum));
+    const history = await Prisma.getEpisodeHistory(userId, animeId, epid);
 
     return res.status(200).json(history);
   } catch (error) {

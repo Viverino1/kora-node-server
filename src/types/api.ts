@@ -1,7 +1,7 @@
 export namespace Kora {
   export interface History {
     lastUpdated: string;
-    epnum: number;
+    epid: string;
     animeId: string;
     lastTimeStamp: number;
     duration: number | null;
@@ -45,7 +45,7 @@ export namespace Kora {
     hiAnimeId: string | null;
     malId: number | null;
     anilistId: number | null;
-    title: string | null;
+    title: string;
     description: string | null;
     poster: string | null;
     trailer: {

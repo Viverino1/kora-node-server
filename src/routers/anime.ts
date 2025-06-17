@@ -16,13 +16,13 @@ router.get("/anime/:id", async (_req: Request, res: Response) => {
   return res.json(anime);
 });
 
-router.get("/anime/:id/:epnum", async (_req: Request, res: Response) => {
+router.get("/anime/:id/:epid", async (_req: Request, res: Response) => {
   const userId = await ClerkService.getUserFromRequest(_req);
   // if (!userId) {
   //   return res.status(401).json({ message: "Unauthorized" });
   // }
-  const { id, epnum } = _req.params;
-  const source = await Composer.getSource(userId, id, Number(epnum));
+  const { id, epid } = _req.params;
+  const source = await Composer.getSource(userId, id, epid);
   return res.json(source);
 });
 

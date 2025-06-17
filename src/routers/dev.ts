@@ -1,7 +1,8 @@
 import { Request, Response, Router } from "express";
 import Composer from "../core/Composer.js";
+import { promises as fs } from "fs";
+import path from "path";
 import { Prisma } from "../core/Prisma.js";
-import { Source } from "../../dist/lib/prisma/index.js";
 
 const router = Router();
 
@@ -14,6 +15,27 @@ router.get("/dev", async (_req: Request, res: Response) => {
 export default router;
 
 async function dev() {
-  const all = await Composer.getAllAnime();
-  return all?.map((a) => a.title);
+  // const sources = await Prisma.client.cachedResponse.findMany({
+  //   where: {
+  //     source: "ANIMEPAHE",
+  //     AND: [
+  //       {
+  //         route: {
+  //           startsWith: "/play/",
+  //         },
+  //       },
+  //     ],
+  //   },
+  // });
+
+  // return sources.map((source) => source.route.split("/"));
+
+  return await Prisma.client.cachedResponse.deleteMany({
+    where: {
+      source: "COMPOSER",
+      route: {
+        startsWith: "image",
+      },
+    },
+  });
 }
