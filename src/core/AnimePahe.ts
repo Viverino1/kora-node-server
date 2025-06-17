@@ -48,8 +48,8 @@ class AnimePahe {
   }
 
   public static async getHome(options = Prisma.defaultCacheOptions) {
-    const data = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
-    return data;
+    const res = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
+    return res?.data ?? null;
   }
 
   private static async _getAnimeList() {
@@ -133,53 +133,14 @@ class AnimePahe {
     };
   }
 
-  private static async _getAnime(session: string) {
-    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}?page=1`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
+  private static async _getAnime(id: AnimePahe.AnimeID, route: string) {
+    const res = await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${id.session}?page=1`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
     if (!res || !res.content) {
       return null;
     }
     const { content } = res;
 
-    const maxPagesString = content.querySelector('a[title="Go to the Last Page"]')?.getAttribute("data-page");
-    const maxPages = maxPagesString ? Number(maxPagesString) : 1;
-    let episodes: AnimePahe.Episode[] = [];
-
-    for (let i = 1; i <= maxPages; i++) {
-      const r = i == 0 ? res : await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${session}?page=${i}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
-      if (!r || !r.content) {
-        return;
-      }
-      const { content } = r;
-      const data = content.querySelectorAll("div.episode");
-      const eps = Array.from(data).map((episode, i, arr) => {
-        const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
-
-        const durationText = episode.querySelector("div.episode-label-wrap div.episode-label div.episode-title-wrap span")?.textContent ?? null;
-        const durationParts = durationText ? durationText.split(":").map(Number) : [0, 0, 0];
-        const duration = durationParts ? Math.round(durationParts[0] * 60 + durationParts[1] + durationParts[2] / 60) : null;
-
-        const href = episode.querySelector("div.episode-snapshot a")?.getAttribute("href") || null;
-        const session = href ? href?.split("/")?.pop() ?? null : null;
-
-        const epNumStr = episode.querySelector("div.episode-number")?.textContent?.toLocaleLowerCase().replace("episode", "").trim() ?? null;
-        const ep: AnimePahe.Episode = {
-          session,
-          thumbnail,
-          number: Number(epNumStr),
-          duration,
-        };
-
-        return ep;
-      });
-
-      if (eps.length === 0) {
-        return;
-      }
-
-      episodes = episodes.concat(eps);
-    }
-
-    episodes = episodes.sort((a, b) => a.number - b.number);
+    const cache = await Prisma.getFromCache<AnimePahe.Anime | null>(route, Source.ANIMEPAHE);
 
     const poster = content.querySelector("div.anime-poster a")?.getAttribute("href") || null;
 
@@ -248,10 +209,67 @@ class AnimePahe {
     if (!title) {
       return null;
     }
+
+    const cachedEpisodeCount = cache?.episodes.length;
+    const maxPagesString = content.querySelector('a[title="Go to the Last Page"]')?.getAttribute("data-page");
+    const maxPages = maxPagesString ? Number(maxPagesString) : 1;
+    let episodes: AnimePahe.Episode[] = [];
+
+    const startPage = Math.min(!cachedEpisodeCount ? 1 : Math.floor(cachedEpisodeCount / 30) + 1, maxPages);
+
+    const reverse = infoData.status?.toLowerCase().includes("currently") ?? false;
+
+    for (let i = startPage; i <= maxPages; i++) {
+      const pageNumber = reverse ? maxPages - i : i;
+      console.log(`Fetching page ${i} of ${maxPages} for anime ${id.title}`);
+      const r = pageNumber == 1 ? res : await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${id.session}?page=${pageNumber}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
+      if (!r || !r.content) {
+        return null;
+      }
+      const { content } = r;
+      const data = content.querySelectorAll("div.episode");
+      const eps = Array.from(data).map((episode) => {
+        const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
+
+        const durationText = episode.querySelector("div.episode-label-wrap div.episode-label div.episode-title-wrap span")?.textContent ?? null;
+        const durationParts = durationText ? durationText.split(":").map(Number) : [0, 0, 0];
+        const duration = durationParts ? Math.round(durationParts[0] * 60 + durationParts[1] + durationParts[2] / 60) : null;
+
+        const href = episode.querySelector("div.episode-snapshot a")?.getAttribute("href") || null;
+        const session = href ? href?.split("/")?.pop() ?? null : null;
+
+        const epNumStr = episode.querySelector("div.episode-number")?.textContent?.toLocaleLowerCase().replace("episode", "").trim() ?? null;
+
+        const ep: AnimePahe.Episode = {
+          session,
+          thumbnail,
+          number: epNumStr ?? "",
+          duration,
+        };
+
+        return ep;
+      });
+
+      if (eps.length === 0) {
+        return null;
+      }
+
+      if (reverse) eps.reverse();
+
+      episodes = episodes.concat(eps);
+    }
+
+    const cachedEpisodes = cache?.episodes || [];
+
+    const cachedEpisodeNumbers = new Set(cachedEpisodes.map((ep) => ep.number));
+    const newEpisodes = episodes.filter((ep) => !cachedEpisodeNumbers.has(ep.number));
+
+    episodes = cachedEpisodes.concat(newEpisodes);
+
     const anime: AnimePahe.Anime = {
       id: {
         title,
-        session,
+        session: id.session,
         id: encodeStringToId(title),
       },
       title,
@@ -268,9 +286,9 @@ class AnimePahe {
     return anime;
   }
 
-  public static async getAnime(id: AnimePahe.AnimeID, options = Prisma.defaultCacheOptions) {
+  public static async getAnime(id: AnimePahe.AnimeID, options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
     options.animeID = id.id;
-    const data = Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, () => this._getAnime(id.session), options);
+    const data = await Prisma.cache(`/anime/${id.id}`, Source.ANIMEPAHE, (route) => this._getAnime(id, route), options);
     return data;
   }
 
@@ -322,8 +340,8 @@ class AnimePahe {
 
   public static async getSource(id: string, aSesh: string, epnum: number, eSesh: string, options = Prisma.defaultCacheOptions) {
     options.animeID = id;
-    const data = Prisma.cache(`/play/${id}/${epnum}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
-    return data;
+    const data = await Prisma.cache(`/play/${id}/${epnum}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
+    return data?.data ?? null;
   }
 }
 
@@ -343,7 +361,7 @@ namespace AnimePahe {
   export type Episode = {
     session: string | null;
     thumbnail: string | null;
-    number: number;
+    number: string;
     duration: number | null;
   };
 

@@ -37,8 +37,8 @@ model History {
   uid           String
   epnum         String
   animeId       String
-  firstUpdated   DateTime @default(now())
   lastUpdated   DateTime @default(now())
   lastTimeStamp Int
+  duration      Int
   @@id([uid, epnum, animeId])
 }

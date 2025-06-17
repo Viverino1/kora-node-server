@@ -10,18 +10,18 @@ router.post("/history", async (_req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   try {
-    const { animeId, epnum, timestamp } = _req.body;
+    const { animeId, epnum, timestamp, duration } = _req.body;
 
-    if (!animeId || !epnum || !timestamp) {
+    if (!animeId || !epnum || !timestamp || !duration) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: animeId, epnum, and timestamp",
+        message: "Missing required fields: animeId, epnum, timestamp, and duration",
       });
     }
 
     console.log(`Creating history entry for user ${userId}, animeId ${animeId}, epnum ${epnum}, timestamp ${timestamp}`);
 
-    await Prisma.setHistory(userId, animeId, epnum, timestamp);
+    await Prisma.setHistory(userId, animeId, epnum, timestamp, duration);
 
     return res.status(201).json({
       success: true,
@@ -46,34 +46,21 @@ router.get("/history", async (_req: Request, res: Response) => {
     const epnum = _req.query.epnum as string;
 
     if (!animeId || !epnum) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required query parameters: animeid and epnum",
-      });
+      try {
+        const data = await Prisma.getHistory(userId);
+        return res.json(data);
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch all history",
+        });
+      }
     }
 
     const history = await Prisma.getEpisodeHistory(userId, animeId, Number(epnum));
 
     return res.status(200).json(history);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch history",
-    });
-  }
-});
-
-router.get("/history/recent", async (_req: Request, res: Response) => {
-  const userId = await ClerkService.getUserFromRequest(_req);
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const limitStr = _req.query.limit as string | undefined;
-    const limit = limitStr && limitStr != "undefined" ? Number(limitStr) : undefined;
-    const data = await Prisma.getRecentHistory(userId, limit);
-    return res.json(data);
-  } catch {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch history",

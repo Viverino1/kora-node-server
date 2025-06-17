@@ -21,7 +21,7 @@ export class Jikan {
   public static async getAnime(id: number, options = Prisma.defaultCacheOptions) {
     const route = `/anime/${id}/full`;
     const data = await Prisma.cache(route, Source.JIKAN, this._getAnime, options);
-    return data;
+    return data?.data ?? null;
   }
 
   private static async _getIdFromTitle(route: string, title: string) {

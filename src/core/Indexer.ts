@@ -2,6 +2,7 @@ import PQueue from "p-queue";
 import { HiAnime } from "../services/hianime/hianime.js";
 import AnimePahe from "./AnimePahe.js";
 import Composer from "./Composer.js";
+import { Kora } from "../types/api.js";
 
 export class Indexer {
   public static queue = new PQueue({ concurrency: 1 });
@@ -23,20 +24,20 @@ export class Indexer {
       const cacheIds = new Set(cache.map((a) => a.id));
       const newAnimes = remote.filter((a) => !cacheIds.has(a.id));
       newAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, false));
       });
     }
 
     const updates = await AnimePahe.updateAnimeList();
     if (updates) {
       updates?.createdAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, false));
       });
       updates?.updatedAnimes.forEach((a) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, false));
+        this.queue.add(() => Composer.getAnime(a, false));
       });
-      updates?.deletedAnimes.forEach((a: AnimePahe.AnimeID) => {
-        this.queue.add(() => Composer.getAnime(a, undefined, false));
+      updates?.deletedAnimes.forEach((a) => {
+        this.queue.add(() => Composer.getAnime(a, false));
       });
     }
 

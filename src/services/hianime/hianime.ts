@@ -72,7 +72,7 @@ export class HiAnime {
     if (!id) return null;
     const route = `/episode/sources?animeEpisodeId=${id}`;
     const data = await Prisma.cache(route, Source.HIANIME, this._getSource, options);
-    return data;
+    return data?.data ?? null;
   }
 
   private static async _getHome() {
@@ -85,7 +85,7 @@ export class HiAnime {
   public static async getHome(options: Prisma.CacheOptions = Prisma.defaultCacheOptions) {
     const route = `/home`;
     const data = await Prisma.cache(route, Source.HIANIME, this._getHome, options);
-    return data;
+    return data?.data ?? null;
   }
 }
 

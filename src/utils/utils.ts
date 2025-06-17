@@ -1,6 +1,9 @@
 import crypto from "crypto";
 import { baseURL, port } from "../server.js";
 import { HiAnime } from "../services/hianime/hianime.js";
+import axios from "axios";
+import { Prisma } from "../core/Prisma.js";
+import { Source } from "../../dist/lib/prisma/index.js";
 
 export function ensureNotZero(value: number | null): number | null {
   return value === 0 ? null : value;
@@ -138,4 +141,22 @@ export function encodeStringToId(str: string) {
 export function proxyUrl(url: string | null) {
   if (!url) return null;
   return `${baseURL}:${port}/proxy/pahe?url=${encodeURIComponent(url)}`;
+}
+
+/**
+ * Fetches an image from a URL and returns a base64-encoded data URI string.
+ * @param url The image URL
+ * @returns Promise<string> The base64 data URI string
+ */
+export async function imageUrlToBase64(key: string, url: string): Promise<string | null> {
+  return (
+    (
+      await Prisma.cache(`image:${key}`, Source.COMPOSER, async () => {
+        const response = await axios.get(url, { responseType: "arraybuffer" });
+        const contentType = response.headers["content-type"] || "image/jpeg";
+        const base64 = Buffer.from(response.data, "binary").toString("base64");
+        return `data:${contentType};base64,${base64}`;
+      })
+    )?.data ?? null
+  );
 }

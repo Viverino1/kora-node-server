@@ -7,13 +7,12 @@ const router = Router();
 
 router.get("/anime", async (_req: Request, res: Response) => {
   const data = await Prisma.getAllAnimeIDs();
-  return res.json(data);
+  return res.json(Array.from(data));
 });
 
 router.get("/anime/:id", async (_req: Request, res: Response) => {
-  const userId = await ClerkService.getUserFromRequest(_req);
   const { id } = _req.params;
-  const anime = await Composer.getAnime(id, userId ?? undefined); // Don't pass options at all
+  const anime = (await Composer.getAnime(id))?.data ?? null;
   return res.json(anime);
 });
 

@@ -2,12 +2,12 @@ import { baseURL, port } from "../server.js";
 import { HiAnime } from "../services/hianime/hianime.js";
 import { Jikan } from "../services/jikan.js";
 import { Kora } from "../types/api.js";
-import { doesMatch, ensureNoDuplicates, proxyUrl, timeStringToMinutes } from "../utils/utils.js";
+import { doesMatch, encodeStringToId, ensureNoDuplicates, imageUrlToBase64, proxyUrl, timeStringToMinutes } from "../utils/utils.js";
 import AnimePahe from "./AnimePahe.js";
 import { Prisma } from "./Prisma.js";
 
 export default class Composer {
-  public static async getAnime(id: string | AnimePahe.AnimeID, uid?: string, useCache: boolean = true) {
+  public static async getAnime(id: string | AnimePahe.AnimeID, useCache: boolean = true) {
     try {
       if (typeof id === "string") {
         id = (await Prisma.client.animeID.findUnique({
@@ -21,29 +21,33 @@ export default class Composer {
       options.useCache = useCache;
       options.animeID = id.id;
 
-      return this._getAnime(id, uid, options);
+      return this._getAnime(id, options);
     } catch {
       return null;
     }
   }
 
-  private static async _getAnime(id: AnimePahe.AnimeID, uid?: string, options = Prisma.defaultCacheOptions) {
+  private static async _getAnime(id: AnimePahe.AnimeID, options = Prisma.defaultCacheOptions): Promise<{ data: Kora.Anime; fromCache: boolean } | null> {
     const startTime = performance.now();
     try {
       const [pahe, jikan, hiAnimeId] = await Promise.all([AnimePahe.getAnime(id, options), Jikan.getAnimeFromTitle(id.title, options), HiAnime.getIdFromTitle(id.title, options)]);
-      const [hiAnime, hiAnimeEpisodes] = hiAnimeId ? await Promise.all([HiAnime.getAnime(hiAnimeId, options), HiAnime.getEpisodes(hiAnimeId, options)]) : [null, null];
+      const [hiAnime, hiAnimeEpisodes] = hiAnimeId && hiAnimeId?.data ? await Promise.all([HiAnime.getAnime(hiAnimeId?.data, options), HiAnime.getEpisodes(hiAnimeId?.data, options)]) : [null, null];
 
-      if (!pahe || !pahe.title) return null;
+      if (!pahe || !pahe.data || !pahe.data.title) return null;
 
-      const episodes = pahe.episodes
+      const epOffset = (pahe.data.episodes[0] && pahe.data.episodes[0].number && !isNaN(parseInt(pahe.data.episodes[0].number)) ? parseInt(pahe.data.episodes[0].number) : 1) - 1;
+
+      const episodes: (Kora.Episode | null)[] = pahe.data.episodes
         .map((e, i) => {
-          const hiAnimeEpisode = hiAnimeEpisodes && hiAnimeEpisodes.find ? hiAnimeEpisodes?.find((e2) => e2.number === e.number) : null;
-          if (!e.session) {
+          if (!e || !e.session) {
             return null;
           }
+          const epNum = parseInt(e?.number) - epOffset;
+          const hiAnimeEpisode = hiAnimeEpisodes?.data?.find((e2) => e2.number === epNum);
           const ep: Kora.Episode = {
-            numberInShow: e.number,
-            number: i + 1,
+            id: encodeStringToId(e.number),
+            epStr: e.number,
+            num: epNum,
             session: e.session,
             hiAnimeEpisodeId: hiAnimeEpisode?.id ?? null,
             title: hiAnimeEpisode?.title ?? `Episode ${e.number}`,
@@ -53,61 +57,68 @@ export default class Composer {
           };
           return ep;
         })
-        .filter((ep) => ep !== null)
-        .sort((a, b) => a.number - b.number);
+        .filter((ep) => ep !== null);
 
-      const poster = pahe.poster ?? jikan?.images.jpg.large_image_url ?? hiAnime?.poster ?? null;
+      for (const episode of episodes) {
+        if (episode && episode.thumbnail) {
+          const key = [id.id, episode.id].join(":");
+          episode.thumbnail = await imageUrlToBase64(key, episode.thumbnail);
+        }
+      }
+
+      let poster = proxyUrl(pahe.data.poster ?? jikan?.data?.images.jpg.large_image_url ?? hiAnime?.data?.poster ?? null);
+      poster = poster ? await imageUrlToBase64(id.id, poster) : null;
 
       const anime: Kora.Anime | null = {
         id: id.id,
         session: id.session,
-        anilistId: hiAnime?.anilistId ?? null,
-        hiAnimeId,
-        malId: jikan?.mal_id ?? hiAnime?.malId ?? null,
-        title: pahe.title,
-        description: pahe.synopsis ?? jikan?.synopsis ?? hiAnime?.description ?? null,
-        poster: proxyUrl(poster),
+        anilistId: hiAnime?.data?.anilistId ?? null,
+        hiAnimeId: hiAnimeId?.data ?? null,
+        malId: jikan?.data?.mal_id ?? hiAnime?.data?.malId ?? null,
+        title: pahe.data.title,
+        description: pahe.data.synopsis ?? jikan?.data?.synopsis ?? hiAnime?.data?.description ?? null,
+        poster: poster,
         trailer: {
-          ytid: jikan?.trailer.youtube_id ?? null,
-          thumbnail: jikan?.trailer.images?.maximum_image_url ?? null,
-          url: jikan?.trailer.url ?? null,
+          ytid: jikan?.data?.trailer.youtube_id ?? null,
+          thumbnail: jikan?.data?.trailer.images?.maximum_image_url ?? null,
+          url: jikan?.data?.trailer.url ?? null,
         },
-        episodes: episodes,
+        episodes: episodes.filter((e) => e !== null),
         info: {
           titles: {
-            english: jikan?.title_english ?? pahe.title,
-            romanji: doesMatch(pahe.title, jikan?.title ?? null) ? null : jikan?.title ?? null,
-            japanese: jikan?.title_japanese ?? null,
+            english: jikan?.data?.title_english ?? pahe.data.title,
+            romanji: doesMatch(pahe.data.title, jikan?.data?.title ?? null) ? null : jikan?.data?.title ?? null,
+            japanese: jikan?.data?.title_japanese ?? null,
           },
-          mediaType: jikan?.type ?? pahe.info.type ?? hiAnime?.type ?? null,
-          source: jikan?.source ?? null,
-          episodes: pahe.episodes.length,
-          studios: jikan?.studios?.map((s) => s.name) ?? [],
-          producers: jikan?.producers?.map((p) => p.name) ?? [],
-          licensors: jikan?.licensors?.map((l) => l.name) ?? [],
-          status: pahe.info.status,
-          airing: jikan?.airing ?? null,
+          mediaType: jikan?.data?.type ?? pahe.data.info.type ?? hiAnime?.data?.type ?? null,
+          source: jikan?.data?.source ?? null,
+          episodes: episodes[episodes.length - 1]?.num ?? pahe.data.info.episodeCount,
+          studios: jikan?.data?.studios?.map((s) => s.name) ?? [],
+          producers: jikan?.data?.producers?.map((p) => p.name) ?? [],
+          licensors: jikan?.data?.licensors?.map((l) => l.name) ?? [],
+          status: pahe.data.info.status,
+          airing: jikan?.data?.airing ?? null,
           aired: {
-            from: pahe.info.aired.start ?? (jikan?.aired?.from ? new Date(jikan.aired.from).toISOString() : null),
-            to: pahe.info.aired.end ?? (jikan?.aired?.to ? new Date(jikan.aired.to).toISOString() : null),
+            from: pahe.data.info.aired.start ?? (jikan?.data?.aired?.from ? new Date(jikan.data?.aired.from).toISOString() : null),
+            to: pahe.data.info.aired.end ?? (jikan?.data?.aired?.to ? new Date(jikan.data?.aired.to).toISOString() : null),
           },
-          duration: timeStringToMinutes(jikan?.duration ?? null),
+          duration: timeStringToMinutes(jikan?.data?.duration ?? null),
           stats: {
-            score: jikan?.score ?? null,
-            scoredBy: jikan?.scored_by ?? null,
-            rank: jikan?.rank ?? null,
-            popularity: jikan?.popularity ?? null,
-            members: jikan?.members ?? null,
-            favorites: jikan?.favorites ?? null,
+            score: jikan?.data?.score ?? null,
+            scoredBy: jikan?.data?.scored_by ?? null,
+            rank: jikan?.data?.rank ?? null,
+            popularity: jikan?.data?.popularity ?? null,
+            members: jikan?.data?.members ?? null,
+            favorites: jikan?.data?.favorites ?? null,
           },
-          season: jikan?.season ?? null,
-          year: jikan?.year ?? null,
+          season: jikan?.data?.season ?? null,
+          year: jikan?.data?.year ?? null,
           broadcast: {
-            day: jikan?.broadcast?.day ?? null,
-            time: jikan?.broadcast?.time ?? null,
-            timezone: jikan?.broadcast?.timezone ?? null,
+            day: jikan?.data?.broadcast?.day ?? null,
+            time: jikan?.data?.broadcast?.time ?? null,
+            timezone: jikan?.data?.broadcast?.timezone ?? null,
           },
-          genres: ensureNoDuplicates([...(pahe.info.genres || []), ...(pahe.info.themes || []), ...(jikan?.themes?.map((t) => t.name) || [])]).map((g) => g.toLowerCase()),
+          genres: ensureNoDuplicates([...(pahe.data.info.genres || []), ...(pahe.data.info.themes || []), ...(jikan?.data?.themes?.map((t) => t.name) || [])]).map((g) => g.toLowerCase()),
         },
       };
 
@@ -115,7 +126,10 @@ export default class Composer {
       const duration = (endTime - startTime) / 1000;
 
       console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
-      return anime;
+      return {
+        data: anime,
+        fromCache: pahe.fromCache || jikan?.fromCache || hiAnimeId?.fromCache || hiAnime?.fromCache || hiAnimeEpisodes?.fromCache ? true : false,
+      };
     } catch (error) {
       console.log(`\x1b[31m[X] GET ${id.title}\x1b[0m `);
       throw error;
@@ -124,7 +138,7 @@ export default class Composer {
 
   public static async getSource(uid: string | null, id: string | Kora.Anime, epnum: number) {
     const startTime = performance.now();
-    const anime = typeof id == "string" ? await Composer.getAnime(id, undefined) : id;
+    const anime = typeof id == "string" ? (await Composer.getAnime(id))?.data ?? null : id;
     try {
       const ep = anime?.episodes[epnum - 1];
 
@@ -169,7 +183,7 @@ export default class Composer {
     const all = await Prisma.getAllAnimeIDs();
     const animes = new Set<Kora.Anime>();
     for (const id of all.keys()) {
-      const anime = await Composer.getAnime(id);
+      const anime = (await Composer.getAnime(id))?.data ?? null;
       anime && animes.add(anime);
     }
     const arr = Array.from(animes);
@@ -177,6 +191,6 @@ export default class Composer {
   }
 
   public static async getAllAnime(options = Prisma.defaultCacheOptions) {
-    return await Prisma.cache("allAnime", "COMPOSER", this._getAllAnime, options);
+    return (await Prisma.cache("allAnime", "COMPOSER", this._getAllAnime, options))?.data;
   }
 }

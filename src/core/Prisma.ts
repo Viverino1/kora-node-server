@@ -16,12 +16,33 @@ export class Prisma {
     await this._updateLocalIds();
   }
 
-  static async cache<T>(route: string, source: Source, fetchFn: (route: string) => Promise<T>, options = this.defaultCacheOptions): Promise<T | null> {
+  static async getFromCache<T>(route: string, source: Source) {
+    const cached = await Prisma.client.cachedResponse.findUnique({ where: { route, source } });
+
+    if (cached) {
+      return (cached.data as any).json as T;
+    } else {
+      return null;
+    }
+  }
+
+  static async cache<T>(
+    route: string,
+    source: Source,
+    fetchFn: (route: string) => Promise<T>,
+    options = this.defaultCacheOptions
+  ): Promise<{
+    data: T;
+    fromCache: boolean;
+  } | null> {
     if (options.useCache) {
       const cached = await Prisma.client.cachedResponse.findUnique({ where: { route, source } });
 
       if (cached) {
-        return (cached.data as any).json as T;
+        return {
+          data: (cached.data as any).json as T,
+          fromCache: true,
+        };
       }
     }
     let data = null;
@@ -46,7 +67,10 @@ export class Prisma {
         animeID: options.animeID,
       },
     });
-    return data as T;
+    return {
+      data: data as T,
+      fromCache: false,
+    };
   }
 
   public static async updateAnimeID(anime: AnimePahe.AnimeID) {
@@ -82,6 +106,9 @@ export class Prisma {
   }
 
   public static async getAllAnimeIDs() {
+    if (this._ids.size === 0) {
+      await this._updateLocalIds();
+    }
     return this._ids;
   }
 
@@ -92,7 +119,7 @@ export class Prisma {
     return sorted;
   }
 
-  public static async setHistory(uid: string, animeId: string, epnum: number, timestamp: number) {
+  public static async setHistory(uid: string, animeId: string, epnum: number, timestamp: number, duration: number) {
     await Prisma.client.history.upsert({
       where: {
         uid_epnum_animeId: {
@@ -104,12 +131,14 @@ export class Prisma {
       update: {
         lastUpdated: new Date(),
         lastTimeStamp: timestamp,
+        duration: duration,
       },
       create: {
         uid,
         animeId,
         epnum: epnum.toString(),
         lastTimeStamp: timestamp,
+        duration: duration,
       },
     });
   }
@@ -136,7 +165,7 @@ export class Prisma {
     return history;
   }
 
-  public static async getRecentHistory(uid: string, limit?: number) {
+  public static async getHistory(uid: string, limit?: number) {
     const userHistory = await Prisma.client.history.findMany({
       where: {
         uid,
@@ -144,7 +173,6 @@ export class Prisma {
       orderBy: {
         lastUpdated: "desc",
       },
-      distinct: ["animeId"],
       ...(limit !== undefined ? { take: limit } : {}),
     });
 

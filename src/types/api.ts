@@ -4,10 +4,13 @@ export namespace Kora {
     epnum: number;
     animeId: string;
     lastTimeStamp: number;
+    duration: number | null;
   }
+
   export interface Episode {
-    number: number;
-    numberInShow: number;
+    id: string;
+    epStr: string;
+    num: number;
     session: string;
     hiAnimeEpisodeId: string | null;
     title: string | null;
@@ -15,6 +18,7 @@ export namespace Kora {
     duration: number | null;
     isFiller: boolean | null;
   }
+
   export interface Source extends Episode {
     streamUrl: string;
     proxiedStreamUrl: string;
@@ -49,7 +53,7 @@ export namespace Kora {
       thumbnail: string | null;
       url: string | null;
     };
-    episodes: Kora.Episode[];
+    episodes: Episode[];
     info: {
       titles: {
         english: string;
@@ -89,11 +93,17 @@ export namespace Kora {
   }
 
   export interface Home {
-    continueWatching: string[];
     recent: string[];
-    spotlight: string[];
-    trending: string[];
-    popular: string[];
-    continueWatchingHistory?: History[];
   }
+
+  export interface User {
+    uid: string;
+    email?: string;
+    pfp?: string;
+  }
+
+  export type Immutable = Anime | Episode | Source | User | Home;
+  export type Mutable = History;
+  export type Any = Immutable | Mutable;
+  export type Type = "anime" | "episode" | "source" | "user" | "history" | "home";
 }
