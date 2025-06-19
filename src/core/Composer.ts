@@ -46,6 +46,7 @@ export default class Composer {
           const hiAnimeEpisode = hiAnimeEpisodes?.data?.find((e2) => e2.number === episodeNumber);
           const ep: Kora.Episode = {
             id: encodeStringToId(e.number),
+            index: i,
             epStr: e.number,
             num: episodeNumber,
             session: e.session,
@@ -125,7 +126,7 @@ export default class Composer {
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
 
-      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
       return {
         data: anime,
         fromCache: pahe.fromCache,
@@ -178,7 +179,7 @@ export default class Composer {
 
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
-      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
+      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
       return source;
     } catch {
       console.log(`\x1b[31m[X] GET ${anime?.title + `EP: ${epid}`}\x1b[0m `);

@@ -4,13 +4,14 @@ export namespace Kora {
     epid: string;
     animeId: string;
     lastTimeStamp: number;
-    duration: number | null;
+    duration: number;
   }
 
   export interface Episode {
     id: string;
     epStr: string;
     num: number;
+    index: number;
     session: string;
     hiAnimeEpisodeId: string | null;
     title: string | null;

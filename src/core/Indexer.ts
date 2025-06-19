@@ -8,7 +8,7 @@ export class Indexer {
   public static queue = new PQueue({ concurrency: 1 });
   private static _busy = false;
   static async initialize() {
-    //await this._update();
+    await this._update();
     // setInterval(async () => {
     //   if (this._busy) return;
     //   this._busy = true;

@@ -1,6 +1,9 @@
 import { Request, Response, Router } from "express";
 import Composer from "../core/Composer.js";
+import AnimePahe from "../core/AnimePahe.js";
 const router = Router();
+
+router.get("/anime", async (_req: Request, res: Response) => res.json(await AnimePahe.getAnimeList()));
 
 router.get("/anime/:id", async (_req: Request, res: Response) => {
   const { id } = _req.params;
