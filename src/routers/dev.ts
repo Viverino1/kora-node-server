@@ -1,41 +1,28 @@
 import { Request, Response, Router } from "express";
+import AnimePahe from "../core/AnimePahe.js";
 import Composer from "../core/Composer.js";
-import { promises as fs } from "fs";
-import path from "path";
-import { Prisma } from "../core/Prisma.js";
-
 const router = Router();
 
-router.get("/dev", async (_req: Request, res: Response) => {
+router.get("/dev/", async (_req: Request, res: Response) => {
   const devRes = await dev();
-  console.log("devRes", devRes);
   return res.json(devRes);
 });
 
 export default router;
 
 async function dev() {
-  // const sources = await Prisma.client.cachedResponse.findMany({
-  //   where: {
-  //     source: "ANIMEPAHE",
-  //     AND: [
-  //       {
-  //         route: {
-  //           startsWith: "/play/",
-  //         },
-  //       },
-  //     ],
-  //   },
-  // });
+  const animeIds = await AnimePahe.getAnimeList();
+  if (!animeIds) return;
+  const ids = Array.from(new Set(animeIds.map((anime) => anime.id)));
 
-  // return sources.map((source) => source.route.split("/"));
-
-  return await Prisma.client.cachedResponse.deleteMany({
-    where: {
-      source: "COMPOSER",
-      route: {
-        startsWith: "image",
-      },
-    },
-  });
+  for (const [index, id] of ids.entries()) {
+    console.log(`${(((index + 1) / ids.length) * 100).toFixed(2)}% - Processing ${animeIds[index].title}`);
+    //global.gc!();
+    const anime = await Composer.getAnime(id);
+    if (anime && anime.data) {
+      for (const episode of anime.data.episodes ?? []) {
+        Composer.getSource(anime.data, episode.id);
+      }
+    }
+  }
 }

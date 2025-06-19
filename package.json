@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "concurrently \"node dist/server.js\" \"prisma studio\"",
-    "dev": "tsx watch src/server.ts",
+    "dev": "set NODE_OPTIONS=--max-old-space-size=12288 --expose-gc && tsx watch src/server.ts",
     "build": "prisma generate && tsc",
     "watch": "tsc -w",
     "postinstall": "cd external/hianime/dist && npm install"

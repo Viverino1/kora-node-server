@@ -69,7 +69,7 @@ export default class Composer {
       let poster = proxyUrl(pahe.data.poster ?? jikan?.data?.images.jpg.large_image_url ?? hiAnime?.data?.poster ?? null);
       poster = poster ? await imageUrlToBase64(id.id, poster) : null;
 
-      const anime: Kora.Anime | null = {
+      const anime: Kora.Anime = {
         id: id.id,
         session: id.session,
         anilistId: hiAnime?.data?.anilistId ?? null,
@@ -125,10 +125,10 @@ export default class Composer {
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
 
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
+      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
       return {
         data: anime,
-        fromCache: pahe.fromCache || jikan?.fromCache || hiAnimeId?.fromCache || hiAnime?.fromCache || hiAnimeEpisodes?.fromCache ? true : false,
+        fromCache: pahe.fromCache,
       };
     } catch (error) {
       console.log(`\x1b[31m[X] GET ${id.title}\x1b[0m `);
@@ -136,15 +136,22 @@ export default class Composer {
     }
   }
 
-  public static async getSource(uid: string | null, id: string | Kora.Anime, epid: string) {
+  public static async getSource(id: string | Kora.Anime, epid: string, useCache: boolean = true) {
+    const options: Prisma.CacheOptions = Prisma.defaultCacheOptions;
+    options.useCache = useCache;
+    options.animeID = typeof id === "string" ? id : id.id;
+
+    return this._getSource(id, epid, options);
+  }
+
+  private static async _getSource(id: string | Kora.Anime, epid: string, options = Prisma.defaultCacheOptions) {
     const startTime = performance.now();
     const anime = typeof id == "string" ? (await Composer.getAnime(id))?.data ?? null : id;
     try {
       const ep = anime?.episodes.find((e) => e.id == epid);
 
       if (!anime || !ep) return null;
-
-      const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime!.id, anime?.session, epid, ep?.session), HiAnime.getSource(ep.hiAnimeEpisodeId)]);
+      const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime.id, anime.session, epid, ep.session, options), HiAnime.getSource(ep.hiAnimeEpisodeId, options)]);
 
       if (!pahe) return null;
       const source: Kora.Source = {
@@ -171,7 +178,7 @@ export default class Composer {
 
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
+      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
       return source;
     } catch {
       console.log(`\x1b[31m[X] GET ${anime?.title + `EP: ${epid}`}\x1b[0m `);
@@ -179,14 +186,26 @@ export default class Composer {
     }
   }
 
-  public static async getAllAnime() {
-    const all = await Prisma.getAllAnimeIDs();
-    const animes = new Set<Kora.Anime>();
-    for (const id of all.keys()) {
-      const anime = (await Composer.getAnime(id))?.data ?? null;
-      anime && animes.add(anime);
+  public static async updateAnime(id: string | AnimePahe.AnimeID) {
+    const cache = await this.getAnime(id);
+    const fresh = cache?.fromCache ? await this.getAnime(id, false) : cache;
+    if (!fresh || !fresh.data) {
+      return null;
     }
-    const arr = Array.from(animes);
-    return arr;
+
+    const cachedEpisodes = cache?.fromCache ? cache.data.episodes : [];
+    const freshEpisodes = fresh.data.episodes;
+
+    const episodesToUpdate = freshEpisodes.filter((ep) => !cachedEpisodes.some((ce) => ce.id === ep.id));
+
+    if (episodesToUpdate.length === 0) {
+      console.log(`No new episodes to update for ${fresh.data.title}`);
+      return null;
+    }
+
+    for (const episode of episodesToUpdate) {
+      console.log(`Updating episode: ${episode.epStr}`);
+      await this.getSource(fresh.data, episode.id);
+    }
   }
 }

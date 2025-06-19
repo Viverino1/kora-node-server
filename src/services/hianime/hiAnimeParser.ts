@@ -88,7 +88,7 @@ export default class HiAnimeParser {
   }
 
   public static async source(scrapedData: HiAnime.ScrapedEpisodeSources): Promise<HiAnime.Source> {
-    const url: string = scrapedData.sources[0].url;
+    const url: string | null = scrapedData.sources.length > 0 ? scrapedData.sources[0].url : null;
     const referer: string | null = scrapedData.headers?.Referer ?? null;
 
     // Check for English subtitles

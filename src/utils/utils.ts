@@ -149,19 +149,19 @@ export function proxyUrl(url: string | null) {
  * @returns Promise<string> The base64 data URI string
  */
 export async function imageUrlToBase64(key: string, url: string): Promise<string | null> {
-  // return (
-  //   (
-  //     await Prisma.cache(`image:${key}`, Source.COMPOSER, async () => {
-  //       const response = await axios.get(url, { responseType: "arraybuffer" });
-  //       const contentType = response.headers["content-type"] || "image/jpeg";
-  //       const base64 = Buffer.from(response.data, "binary").toString("base64");
-  //       return `data:${contentType};base64,${base64}`;
-  //     })
-  //   )?.data ?? null
-  // );
+  return (
+    (
+      await Prisma.cache(`image:${key}`, Source.COMPOSER, async () => {
+        const response = await axios.get(url, { responseType: "arraybuffer" });
+        const contentType = response.headers["content-type"] || "image/jpeg";
+        const base64 = Buffer.from(response.data, "binary").toString("base64");
+        return `data:${contentType};base64,${base64}`;
+      })
+    )?.data ?? null
+  );
+}
 
-  const response = await axios.get(url, { responseType: "arraybuffer" });
-  const contentType = response.headers["content-type"] || "image/jpeg";
-  const base64 = Buffer.from(response.data, "binary").toString("base64");
-  return `data:${contentType};base64,${base64}`;
+export function isNumber(str: string | undefined) {
+  if (str === undefined || str === null) return false;
+  return /^[0-9]+$/.test(str);
 }

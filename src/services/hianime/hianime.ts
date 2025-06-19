@@ -149,7 +149,7 @@ export namespace HiAnime {
   }
 
   export interface Source {
-    url: string;
+    url: string | null;
     referer: string | null;
     introStart: number | null;
     introEnd: number | null;

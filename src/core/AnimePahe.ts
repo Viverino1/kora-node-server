@@ -47,9 +47,9 @@ class AnimePahe {
     return animes;
   }
 
-  public static async getHome(options = Prisma.defaultCacheOptions) {
-    const res = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, options);
-    return res?.data ?? null;
+  public static async getHome(useCache: boolean = true) {
+    const res = await Prisma.cache("/", Source.ANIMEPAHE, this._getHome, { useCache, animeID: null });
+    return res;
   }
 
   private static async _getAnimeList() {
@@ -94,43 +94,21 @@ class AnimePahe {
     };
   }
 
-  public static async updateAnimeList() {
-    const res = await this._getAnimeList();
-    if (!res || !res.animes) {
-      return null;
-    }
-    const { animes, duplicateAnimes } = res;
-    const existingAnimes = await Prisma.client.animeID.findMany();
-
-    const createdAnimes: AnimePahe.AnimeID[] = [];
-    const updatedAnimes: AnimePahe.AnimeID[] = [];
-    const staleAnimes = existingAnimes.filter((existingAnime: AnimePahe.AnimeID) => !animes.some((anime) => anime.id === existingAnime.id));
-
-    for (const anime of animes) {
-      const existingAnime = existingAnimes.find((existing: AnimePahe.AnimeID) => existing.id === anime.id);
-
-      if (!existingAnime) {
-        await Prisma.updateAnimeID(anime);
-        createdAnimes.push(anime);
-      } else if (existingAnime.session !== anime.session) {
-        await Prisma.updateAnimeID(anime);
-        updatedAnimes.push(anime);
-      }
-    }
-
-    for (const staleAnime of staleAnimes) {
-      await Prisma.client.animeID.delete({
-        where: {
-          id: staleAnime.id,
-        },
+  public static async getAnimeList(useCache: boolean = true) {
+    if (useCache) {
+      const cache = await Prisma.client.animeID.findMany();
+      return cache.map(({ title, id, session }) => {
+        return { title, id, session } as AnimePahe.AnimeID;
       });
     }
-    return {
-      allUniqueAnimes: animes,
-      createdAnimes,
-      updatedAnimes,
-      deletedAnimes: staleAnimes,
-    };
+    const fresh = (await this._getAnimeList())?.animes ?? null;
+    if (!fresh || fresh.length == 0) return null;
+
+    await Prisma.client.animeID.deleteMany({});
+    await Prisma.client.animeID.createMany({
+      data: fresh,
+    });
+    return fresh;
   }
 
   private static async _getAnime(id: AnimePahe.AnimeID, route: string) {
@@ -220,8 +198,8 @@ class AnimePahe {
     const reverse = infoData.status?.toLowerCase().includes("currently") ?? false;
 
     for (let i = startPage; i <= maxPages; i++) {
-      const pageNumber = reverse ? maxPages - i : i;
-      console.log(`Fetching page ${i} of ${maxPages} for anime ${id.title}`);
+      const pageNumber = reverse ? maxPages - i + 1 : i;
+      console.log(`Fetching page ${pageNumber} of ${maxPages} for anime ${id.title}`);
       const r = pageNumber == 1 ? res : await AnimePahe.queue.add(() => Puppeteer.get(`${AnimePahe.url}/anime/${id.session}?page=${pageNumber}`, ["div.episode-snapshot img", "div.episode-snapshot a", "div.anime-poster a"]));
       if (!r || !r.content) {
         return null;
@@ -340,7 +318,8 @@ class AnimePahe {
 
   public static async getSource(id: string, aSesh: string, epid: string, eSesh: string, options = Prisma.defaultCacheOptions) {
     options.animeID = id;
-    const data = await Prisma.cache(`/play/${id}/${epid}`, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
+    const route = `/play/${id}/${epid}`;
+    const data = await Prisma.cache(route, Source.ANIMEPAHE, () => this._getSource(aSesh, eSesh), options);
     return data?.data ?? null;
   }
 }
