@@ -93,9 +93,7 @@ export namespace Kora {
     };
   }
 
-  export interface Home {
-    recent: string[];
-  }
+  export type Home = string[];
 
   export interface User {
     uid: string;

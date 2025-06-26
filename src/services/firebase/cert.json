@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "kora3-electron",
+  "private_key_id": "41188ede2f654abaf0719c13293f64a90543a256",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDB4w14oVb5ShTf\np9bT60xistzFn1a7+3LpZkelpwEbBg9+WoBtRyof5anWMk45wfS9j1+2VxuUkS/t\nI0/gLR8gkglVRIVrxYDqU8++ICB3PFfBn0rU+40tU4zwDbKtVKC3jI9CnaoN9k8h\nNk2zCIvyUfWMH5YzH/+hMVoChyaBgRDWwItohD4MrOJiE3msv0FJly44GJW/F3U5\n17lMgv15Q40wgS98VGY6FecqxN+Fv00WXrcQdng3Qrl6Wyn3xnQc4GjXgDQrE+IN\niv+MnPlnaWZJohLwEC4+kSbHVuff+ceHRKiKJnNFIgcCaMpR3LDkspLcBSZfdMMm\nBEXfQWOZAgMBAAECggEADtdK6i9rYWSeyWnnA0yxCaMITCZAtN3v81ataEwqxP9H\nQ1Q5HWRDoLJrOCacn0Yt7i6h1GrBhTNB2GSKEi5SAiO7jCfVEKVLE2S786Ew6v+W\n9g6z4y6oJU6ObLeXtDXUoYgkVSSNZkky0GeANhKS58cHRSUL0bkCz7tf2O6wb1wn\n9C0zSODkul8U1Lrtm727wl6+3Ztq3ndwm8OAGJdRYaHWPaSKu3i2L4c1Wg9oVDjQ\nmF5EXmIJNqr/z6G6H53XDCD8q21g4nQVsk9eTlsQTqTjNJxpI3O3mSPcdYqZ3O8V\nXaKNssU2W3EGnJW9Z2+YQ/EXLQlAsLlIdbMLzlgXwQKBgQD5Kkg2qNAFg/4Nfxeo\ntU72v/zxU5Ar7vN8zCYXhcvCAIdPPiGwcecJh+qHE1tCm1xtY2SEvZpGFxr0EXoB\n31ool2MMiNWNEZjlZ0OYIhb1K/t3NKKO4f0REzIyXwB8RHlhBPYpMiqM+rK0IWZ6\n/FGhmJ55pFV0fyNsiPTsvlKCsQKBgQDHNJbF++L8YTG3oTDSIbNsVzVjLIYkxfGm\nQdoofrbtcmVxl38xeNY/4FvCamb3B+AJw+1GA6NxmTeKfK2Gb28K1yn8OBuyg4AI\nCPH4nXWtmGyw+gWgfJDATJg1BL8QxPer5p0EnybwLtu2TvBL2uOJy/IN7t4sTV+k\nsVg/G66ZaQKBgHV9eZXEnmqrZcWJc2eLLxPtTeGhzK7auxfSz/dxkLYHN8am/o3L\n9+ynmXBeMT9EMR4nqwNowHFifcQu5YAyiLnxQLRtZX1imd06h0YadQbg2W/Jcwm7\nCHDfw2C7KWhvhWi5RTYBwMy/fjqwMTm29usjIz8qvVz0goiwQAXObOvRAoGAfowQ\n8Ar5An04GUBkBEl2cu/fsXXabcf1oDmbPjhpOuR+PzAPlD0AVinQAOyZJnsxPuLh\ne6XaEdNUrjxP++QUdZ2ERX7bUYcqMXCFTvuwgyweeDsMkgwv5ImD88JlImEOOXzR\n6Nq14MTTvLfe/UE7ZRFTXriNGTW5+aTTu5t5SmkCgYBxPthCIFHQTcrJBlKm8Ezi\n9fcC8av61LiIx9uxZtXdrOWtG7VI0QPIaqMS1PIq/X7ynD7H8YWAW9PzRvqkcJt4\nEzK4RTlZK/VhJr2sA11vtvt7sp4Z1lURZZsyTMcATidw579BDsC+s+pDzxo4UXWe\nAPYBpQm6DeH6Z5L5urqMCA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@kora3-electron.iam.gserviceaccount.com",
+  "client_id": "105508828369143962192",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40kora3-electron.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

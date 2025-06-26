@@ -155,6 +155,7 @@ export default class Composer {
       const [pahe, hiAnime] = await Promise.all([AnimePahe.getSource(anime.id, anime.session, epid, ep.session, options), HiAnime.getSource(ep.hiAnimeEpisodeId, options)]);
 
       if (!pahe) return null;
+
       const source: Kora.Source = {
         ...ep,
         ...pahe,

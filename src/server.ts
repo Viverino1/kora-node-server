@@ -17,8 +17,6 @@ export const aniwatchPort = process.env.ANIWATCH_API_PORT;
 export const baseURL = process.env.BASE_URL;
 export const jikanBaseURL = process.env.JIKAN_API_BASE_URL;
 export const animePaheBaseURL = process.env.ANIMEPAHE_API_BASE_URL;
-export const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-export const clerkIssuer = process.env.CLERK_ISSUER;
 
 const app = express();
 app.use(cors()); // Add this line to enable CORS for all origins

@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import Composer from "../core/Composer.js";
 import AnimePahe from "../core/AnimePahe.js";
+import { firebaseAuth } from "../middleware/firebaseAuth.js";
+import { getUserIdFromRequest } from "../services/firebase/firebase.js";
 const router = Router();
 
 router.get("/anime", async (_req: Request, res: Response) => res.json(await AnimePahe.getAnimeList()));

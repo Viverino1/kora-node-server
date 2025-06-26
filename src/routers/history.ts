@@ -1,11 +1,11 @@
 import { Request, Response, Router } from "express";
 import { Prisma } from "../core/Prisma.js";
-import ClerkService from "../services/clerk.js";
-
+import { firebaseAuth } from "../middleware/firebaseAuth.js";
+import { getUserIdFromRequest } from "../services/firebase/firebase.js";
 const router = Router();
 
-router.post("/history", async (_req: Request, res: Response) => {
-  const userId = await ClerkService.getUserFromRequest(_req);
+router.post("/history", firebaseAuth, async (_req: Request, res: Response) => {
+  const userId = await getUserIdFromRequest(_req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -35,8 +35,8 @@ router.post("/history", async (_req: Request, res: Response) => {
   }
 });
 
-router.get("/history", async (_req: Request, res: Response) => {
-  const userId = await ClerkService.getUserFromRequest(_req);
+router.get("/history", firebaseAuth, async (_req: Request, res: Response) => {
+  const userId = await getUserIdFromRequest(_req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }

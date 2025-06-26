@@ -5,19 +5,17 @@ import Composer from "../core/Composer.js";
 const router = Router();
 
 router.get("/home", async (_req: Request, res: Response) => {
-  const recent = (await AnimePahe.getHome())?.data?.map((a) => a.id) ?? [];
+  const home = (await AnimePahe.getHome())?.data?.map((a) => a.id) ?? [];
 
   const filtered: string[] = [];
-  for (const id of recent) {
+  for (const id of home) {
     const anime = await Composer.getAnime(id);
     if (anime) {
-      filtered.push(id);
+      filtered.push(anime.data.id);
     }
   }
 
-  const response: Kora.Home = {
-    recent: filtered,
-  };
+  const response: Kora.Home = filtered;
 
   res.json(response);
 });
