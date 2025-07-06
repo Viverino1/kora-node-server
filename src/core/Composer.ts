@@ -126,7 +126,7 @@ export default class Composer {
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
 
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
+      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${id.title}`);
       return {
         data: anime,
         fromCache: pahe.fromCache,
@@ -180,7 +180,7 @@ export default class Composer {
 
       const endTime = performance.now();
       const duration = (endTime - startTime) / 1000;
-      console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
+      //console.log(`\x1b[32m[✓]\x1b[0m GET in ${duration.toFixed(2)}s ${anime.title} EP: ${ep.epStr}`);
       return source;
     } catch {
       console.log(`\x1b[31m[X] GET ${anime?.title + `EP: ${epid}`}\x1b[0m `);
@@ -189,25 +189,46 @@ export default class Composer {
   }
 
   public static async updateAnime(id: string | AnimePahe.AnimeID) {
+    // 1. Log start
+    console.log(`[1] [updateAnime] Starting update for anime ID: ${typeof id === "string" ? id : id.id}`);
+    // 2. Fetch cache
     const cache = await this.getAnime(id);
+    console.log(`[2] [updateAnime] Fetched cache: ${cache ? "found" : "not found"}`);
+    // 3. Fetch fresh data if needed
     const fresh = cache?.fromCache ? await this.getAnime(id, false) : cache;
+    console.log(`[3] [updateAnime] Fetched fresh data: ${fresh ? "found" : "not found"}`);
+
+    // 4. Check if fresh data exists
     if (!fresh || !fresh.data) {
+      console.log(`[4] [updateAnime] No fresh data found, aborting update.`);
       return null;
     }
 
+    // 5. Get cached episodes
     const cachedEpisodes = cache?.fromCache ? cache.data.episodes : [];
+    console.log(`[5] [updateAnime] Cached episodes count: ${cachedEpisodes.length}`);
+    // 6. Get fresh episodes
     const freshEpisodes = fresh.data.episodes;
+    console.log(`[6] [updateAnime] Fresh episodes count: ${freshEpisodes.length}`);
 
+    // 7. Find episodes to update
     const episodesToUpdate = freshEpisodes.filter((ep) => !cachedEpisodes.some((ce) => ce.id === ep.id));
+    console.log(`[7] [updateAnime] Episodes to update: ${episodesToUpdate.length}`);
 
+    // 8. If no new episodes, exit
     if (episodesToUpdate.length === 0) {
-      console.log(`No new episodes to update for ${fresh.data.title}`);
+      console.log(`[8] [updateAnime] No new episodes to update for ${fresh.data.title}`);
       return null;
     }
 
+    // 9. Update each episode
     for (const episode of episodesToUpdate) {
-      console.log(`Updating episode: ${episode.epStr}`);
+      console.log(`[9] [updateAnime] Updating episode: ${episode.epStr} (ID: ${episode.id})`);
       await this.getSource(fresh.data, episode.id);
+      console.log(`[9] [updateAnime] Finished updating episode: ${episode.epStr}`);
     }
+
+    // 10. Log completion
+    console.log(`[10] [updateAnime] Update complete for anime: ${fresh.data.title}`);
   }
 }
