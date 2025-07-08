@@ -44,15 +44,16 @@ export default class Composer {
           }
           const episodeNumber = parseInt(e?.number) - epOffset;
           const hiAnimeEpisode = hiAnimeEpisodes?.data?.find((e2) => e2.number === episodeNumber);
+          const epid = encodeStringToId(e.number);
           const ep: Kora.Episode = {
-            id: encodeStringToId(e.number),
+            id: epid,
             index: i,
             epStr: e.number,
             num: episodeNumber,
             session: e.session,
             hiAnimeEpisodeId: hiAnimeEpisode?.id ?? null,
             title: hiAnimeEpisode?.title ?? `Episode ${e.number}`,
-            thumbnail: proxyUrl(e.thumbnail),
+            thumbnail: proxyUrl(e.thumbnail, id.id, epid),
             duration: e.duration,
             isFiller: hiAnimeEpisode?.isFiller ?? null,
           };
@@ -60,12 +61,12 @@ export default class Composer {
         })
         .filter((ep) => ep !== null);
 
-      for (const episode of episodes) {
-        if (episode && episode.thumbnail) {
-          const key = [id.id, episode.id].join(":");
-          episode.thumbnail = await imageUrlToBase64(key, episode.thumbnail);
-        }
-      }
+      // for (const episode of episodes) {
+      //   if (episode && episode.thumbnail) {
+      //     const key = [id.id, episode.id].join(":");
+      //     episode.thumbnail = await imageUrlToBase64(key, episode.thumbnail);
+      //   }
+      // }
 
       let poster = proxyUrl(pahe.data.poster ?? jikan?.data?.images.jpg.large_image_url ?? hiAnime?.data?.poster ?? null);
       poster = poster ? await imageUrlToBase64(id.id, poster) : null;

@@ -206,6 +206,7 @@ class AnimePahe {
       }
       const { content } = r;
       const data = content.querySelectorAll("div.episode");
+      console.log(`Found ${data.length} episodes on page ${pageNumber}`);
       const eps = Array.from(data).map((episode) => {
         const thumbnail = episode.querySelector("div.episode-snapshot img")?.getAttribute("data-src") || null;
 
@@ -227,10 +228,6 @@ class AnimePahe {
 
         return ep;
       });
-
-      if (eps.length === 0) {
-        return null;
-      }
 
       if (reverse) eps.reverse();
 

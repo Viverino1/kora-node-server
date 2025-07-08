@@ -45,4 +45,4 @@ await AnimePahe.initialize();
 await Prisma.initialize();
 await Indexer.initialize();
 
-console.log(`Main server is running on port ${port}`);
+console.log(`Kora server is running on port ${port}`);

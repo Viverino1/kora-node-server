@@ -138,8 +138,14 @@ export function encodeStringToId(str: string) {
   return crypto.createHash("sha256").update(str).digest("hex");
 }
 
-export function proxyUrl(url: string | null) {
+export function proxyUrl(url: string | null, id?: string, epid?: string): string | null {
   if (!url) return null;
+  if (id) {
+    if (epid) {
+      return `${baseURL}:${port}/proxy/pahe?id=${id}&epid=${epid}&url=${encodeURIComponent(url)}`;
+    }
+    return `${baseURL}:${port}/proxy/pahe?id=${id}&url=${encodeURIComponent(url)}`;
+  }
   return `${baseURL}:${port}/proxy/pahe?url=${encodeURIComponent(url)}`;
 }
 

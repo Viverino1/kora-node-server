@@ -1,13 +1,27 @@
 import axios from "axios";
 import { Router } from "express";
 import { animePaheBaseURL, baseURL, port } from "../server.js";
+import { imageUrlToBase64 } from "../utils/utils.js";
 
 const router = Router();
 
 router.get("/proxy/pahe", async (req, res) => {
   const url = typeof req.query.url === "string" && decodeURIComponent(req.query.url);
+  const id = typeof req.query.id === "string" && decodeURIComponent(req.query.id);
+  const epid = typeof req.query.epid === "string" && decodeURIComponent(req.query.epid);
   if (!url) {
     return res.status(400).send("URL parameter is required");
+  }
+
+  if (id) {
+    let base64Image: string | null = null;
+    if (epid) {
+      const key = [id, epid].join(":");
+      base64Image = await imageUrlToBase64(key, url);
+    } else {
+      base64Image = await imageUrlToBase64(id, url);
+    }
+    return res.status(200).send(base64Image);
   }
 
   try {

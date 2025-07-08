@@ -1,7 +1,7 @@
 import { PrismaClient, Source } from "../../dist/lib/prisma/client.js";
 import { Kora } from "../types/api.js";
 export class Prisma {
-  static _client: PrismaClient | null = null;
+  private static _client: PrismaClient | null = null;
   static get client() {
     if (!this._client) {
       this._client = new PrismaClient();

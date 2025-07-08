@@ -9,9 +9,11 @@ router.get("/home", async (_req: Request, res: Response) => {
 
   const filtered: string[] = [];
   for (const id of home) {
-    const anime = await Composer.getAnime(id);
-    if (anime) {
-      filtered.push(anime.data.id);
+    if (filtered.length < 7) {
+      const anime = await Composer.getAnime(id);
+      if (anime) {
+        filtered.push(anime.data.id);
+      }
     }
   }
 

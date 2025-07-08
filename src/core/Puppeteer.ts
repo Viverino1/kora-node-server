@@ -56,10 +56,14 @@ class Puppeteer {
       const selectorArray = Array.isArray(selectors) ? selectors : [selectors];
       await Promise.all(
         selectorArray.map((selector) =>
-          page.waitForSelector(selector, {
-            visible: false,
-            timeout: 5000,
-          })
+          page
+            .waitForSelector(selector, {
+              visible: false,
+              timeout: 5000,
+            })
+            .catch((e) => {
+              console.warn(`Selector ${selector} not found`);
+            })
         )
       );
 
