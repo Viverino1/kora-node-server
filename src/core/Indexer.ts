@@ -8,12 +8,12 @@ import { Prisma } from "./Prisma.js";
 export class Indexer {
   public static queue = new PQueue({ concurrency: 1 });
   static async initialize() {
-    // (async () => {
-    //   while (true) {
-    //     await this._update();
-    //     await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 5));
-    //   }
-    // })();
+    (async () => {
+      while (true) {
+        await this._update();
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 5));
+      }
+    })();
   }
   private static async _update() {
     const all = await this._getAllAnimeListDiff();
